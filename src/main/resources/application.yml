@@ -9,9 +9,9 @@ spring:
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
-    generate-ddl: true
+    generate-ddl: false
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
