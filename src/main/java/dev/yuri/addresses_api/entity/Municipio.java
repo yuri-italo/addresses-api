@@ -20,8 +20,9 @@ public class Municipio {
     private Long codigoMunicipio;
 
     @NotNull
-    @Column(name = "CODIGO_UF", nullable = false)
-    private Long codigoUf;
+    @ManyToOne
+    @JoinColumn(name = "CODIGO_UF", nullable = false)
+    private UF uf;
 
     @Size(max = 256)
     @Column(name = "NOME")

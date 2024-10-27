@@ -20,12 +20,14 @@ public class Endereco {
     private Long codigoEndereco;
 
     @NotNull
-    @Column(name = "CODIGO_PESSOA", nullable = false)
-    private Long codigoPessoa;
+    @ManyToOne
+    @JoinColumn(name = "CODIGO_PESSOA", nullable = false)
+    private Pessoa pessoa;
 
     @NotNull
-    @Column(name = "CODIGO_BAIRRO", nullable = false)
-    private Long codigoBairro;
+    @ManyToOne
+    @JoinColumn(name = "CODIGO_BAIRRO", nullable = false)
+    private Bairro bairro;
 
     @NotNull
     @Size(max = 256)

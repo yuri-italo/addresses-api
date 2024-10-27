@@ -20,8 +20,9 @@ public class Bairro {
     private Long codigoBairro;
 
     @NotNull
-    @Column(name = "CODIGO_MUNICIPIO", nullable = false)
-    private Long codigoMunicipio;
+    @ManyToOne
+    @JoinColumn(name = "CODIGO_MUNICIPIO", nullable = false)
+    private Municipio municipio;
 
     @NotNull
     @Size(max = 256)
