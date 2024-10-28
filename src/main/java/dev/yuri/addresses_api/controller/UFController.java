@@ -45,11 +45,13 @@ public class UFController {
             return uFService.findElementByFilters(codigoUF, sigla, nome, status)
                 .map(ResponseEntity::ok)
                 .orElseThrow(EntityNotFoundException::new);
-        } else if (status != null) {
-            return ResponseEntity.ok(uFService.findElementsByStatus(status));
-        } else {
-            return ResponseEntity.ok(uFService.findAll());
         }
+
+        if (status != null) {
+            return ResponseEntity.ok(uFService.findElementsByStatus(status));
+        }
+
+        return ResponseEntity.ok(uFService.findAll());
     }
 
     @PostMapping
@@ -57,7 +59,7 @@ public class UFController {
     public ResponseEntity<List<UF>> save(@RequestBody @Valid UFDto uFDto) {
         try {
             uFService.save(new UF(uFDto));
-            return ResponseEntity.ok(uFService.findAll().orElse(Collections.emptyList()));
+            return ResponseEntity.ok(uFService.findAll());
         } catch (Exception e) {
             throw new ResourceNotSavedException(messageSource.getMessage("error.post", new Object[]{"UF"},
                 new Locale("pt", "BR")

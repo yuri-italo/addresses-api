@@ -21,21 +21,21 @@ public class UFService {
         this.uFRepository = uFRepository;
     }
 
-    public Optional<List<UF>> findAll() {
-        return Optional.of(uFRepository.findAll());
+    public List<UF> findAll() {
+        return uFRepository.findAll();
     }
 
     public Optional<UF> findElementByFilters(Long codigoUF, String sigla, String nome, Integer status) {
         return uFRepository.getElementByFilters(codigoUF, sigla, nome, status);
     }
 
-    public Optional<List<UF>> findElementsByStatus(Integer status) {
+    public List<UF> findElementsByStatus(Integer status) {
         return uFRepository.findByStatus(status);
     }
 
-    public UF save(UF uf) {
+    public void save(UF uf) {
         try {
-            return uFRepository.save(uf);
+            uFRepository.save(uf);
         } catch (Exception e) {
             throw new ResourceNotSavedException(messageSource.getMessage("error.post", new Object[]{"UF"},
                 new Locale("pt", "BR")

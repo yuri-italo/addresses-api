@@ -19,5 +19,5 @@ public interface UFRepository extends JpaRepository<UF, Long> {
                                @Param("nome") String nome,
                                @Param("status") Integer status);
 
-    Optional<List<UF>> findByStatus(Integer status);
+    List<UF> findByStatus(Integer status);
 }
