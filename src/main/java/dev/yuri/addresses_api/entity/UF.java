@@ -17,7 +17,7 @@ public class UF {
     @SequenceGenerator(name = "sequence_uf", sequenceName = "SEQUENCE_UF", allocationSize = 1)
     @Column(name = "CODIGO_UF", nullable = false)
     @EqualsAndHashCode.Include
-    private Long codigoUf;
+    private Long codigoUF;
 
     @NotNull
     @Size(max = 3)
