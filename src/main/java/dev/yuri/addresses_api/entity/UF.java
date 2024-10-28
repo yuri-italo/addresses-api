@@ -1,16 +1,25 @@
 package dev.yuri.addresses_api.entity;
 
+import dev.yuri.addresses_api.dto.request.UFDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "TB_UF")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 public class UF {
+
+    public UF (UFDto ufDto) {
+        this.sigla = ufDto.sigla();
+        this.nome = ufDto.nome();
+        this.status = ufDto.status();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_uf")
