@@ -11,7 +11,11 @@ public final class ControllerUtils {
         return Arrays.stream(filters).anyMatch(Objects::nonNull);
     }
 
-    public static boolean isValidParams(List<String> expectedParams, Map<String, String> params) {
-        return new HashSet<>(expectedParams).containsAll(params.keySet());
+    public static List<String> getInvalidFilters(List<String> expectedFilters, Map<String, String> filters) {
+        Set<String> expectedFilterSet = new HashSet<>(expectedFilters);
+
+        return filters.keySet().stream()
+                .filter(filter -> !expectedFilterSet.contains(filter))
+                .toList();
     }
 }

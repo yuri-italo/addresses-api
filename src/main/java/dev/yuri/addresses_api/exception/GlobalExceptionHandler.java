@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidParamException.class)
-    public ResponseEntity<?> handleInvalidParam(InvalidParamException ex) {
-        return ResponseEntity.status(400).body(new ErroDto(ex.getMessage(), 404));
+    @ExceptionHandler(InvalidFilterException.class)
+    public ResponseEntity<?> handleInvalidFiler(InvalidFilterException ex) {
+        return ResponseEntity.status(400).body(new ErroDto(ex.getMessage(), 400));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

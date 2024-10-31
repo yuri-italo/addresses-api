@@ -5,7 +5,7 @@ import dev.yuri.addresses_api.dto.request.UFUpdateDto;
 import dev.yuri.addresses_api.entity.UF;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
-import dev.yuri.addresses_api.exception.InvalidParamException;
+import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.UFService;
 import dev.yuri.addresses_api.utils.ControllerUtils;
 import jakarta.validation.Valid;
@@ -15,17 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/uf")
 public class UFController {
     private final UFService uFService;
     private final MessageSource messageSource;
-    private static final List<String> EXPECTED_PARAMS = Arrays.asList("codigoUF", "sigla", "nome", "status");
+    private static final List<String> EXPECTED_FILTERS = Arrays.asList("codigoUF", "sigla", "nome", "status");
     public static final Locale LOCALE_PT_BR = new Locale("pt", "BR");
 
     public UFController(UFService uFService, MessageSource messageSource) {
@@ -39,18 +36,22 @@ public class UFController {
         @RequestParam(required = false) String sigla,
         @RequestParam(required = false) String nome,
         @RequestParam(required = false) Integer status,
-        @RequestParam Map<String, String> allParams
+        @RequestParam Map<String, String> allFilters
     ) {
-        if (!ControllerUtils.isValidParams(EXPECTED_PARAMS, allParams)) {
-            throw new InvalidParamException(
-                messageSource.getMessage("error.get", new Object[]{"UF"}, LOCALE_PT_BR)
+        var invalidFilters = ControllerUtils.getInvalidFilters(EXPECTED_FILTERS, allFilters);
+        if (!invalidFilters.isEmpty()) {
+            throw new InvalidFilterException(
+                messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
             );
         }
 
         if (ControllerUtils.isUniqueResponse(codigoUF, sigla, nome)) {
-            return uFService.findElementByFilters(codigoUF, sigla, nome, status)
-                .map(ResponseEntity::ok)
-                .orElseThrow(EntityNotFoundException::new);
+            Optional<UF> elementByFilters = uFService.findElementByFilters(codigoUF, sigla, nome, status);
+            if (elementByFilters.isPresent()) {
+                return ResponseEntity.ok(elementByFilters.get());
+            } else {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
         }
 
         if (status != null) {
