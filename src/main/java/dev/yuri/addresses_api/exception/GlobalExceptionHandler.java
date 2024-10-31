@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,18 +32,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException ex) {
-        return ResponseEntity.ok(Collections.emptyList());
-    }
-
     @ExceptionHandler(InvalidParamException.class)
     public ResponseEntity<?> handleInvalidParam(InvalidParamException ex) {
         return ResponseEntity.status(400).body(new ErroDto(ex.getMessage(), 404));
     }
 
-    @ExceptionHandler(ResourceNotSavedException.class)
-    public ResponseEntity<?> handleResourceNotSaved(ResourceNotSavedException ex) {
-        return ResponseEntity.status(400).body(new ErroDto(ex.getMessage(), 404));
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException ex) {
+       return ResponseEntity.status(404).body(new ErroDto(ex.getMessage(), 404));
+    }
+
+    @ExceptionHandler(EntityNotSavedException.class)
+    public ResponseEntity<?> handleEntityNotSaved(EntityNotSavedException ex) {
+        return ResponseEntity.status(500).body(new ErroDto(ex.getMessage(), 500));
+    }
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<?> handleEntityAlreadyExists(EntityAlreadyExistsException ex) {
+        return ResponseEntity.status(409).body(new ErroDto(ex.getMessage(), 409));
     }
 }

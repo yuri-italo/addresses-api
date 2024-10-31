@@ -31,11 +31,13 @@ public class UF {
     @NotNull
     @Size(max = 3)
     @Column(name = "SIGLA", nullable = false, unique = true)
+    @EqualsAndHashCode.Include
     private String sigla;
 
     @NotNull
     @Size(max = 60)
     @Column(name = "NOME", nullable = false, unique = true)
+    @EqualsAndHashCode.Include
     private String nome;
 
     @NotNull
