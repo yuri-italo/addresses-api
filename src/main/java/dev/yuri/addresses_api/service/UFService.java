@@ -43,31 +43,40 @@ public class UFService {
         return  uFRepository.findById(codigoUF);
     }
 
-    public void checkIfExists(UF uf, UFUpdateDto ufUpdateDto) {
+    public void assertUpdatable(UF uf, UFUpdateDto ufUpdateDto) {
         if (hasSameAttributes(uf, ufUpdateDto)) {
             return;
         }
 
-        var updatedName = ufUpdateDto.nome();
-        var updatedSigla = ufUpdateDto.sigla();
-
-        if (uFRepository.existsByNome(updatedName)) {
-            throw new EntityAlreadyExistsException(
-                messageSource.getMessage("error.entity.already.exists",
-                    new Object[]{"UF", "nome", updatedName}, LOCALE_PT_BR)
-            );
-        }
-
-        if (uFRepository.existsBySigla(updatedSigla)) {
-            throw new EntityAlreadyExistsException(
-                messageSource.getMessage("error.entity.already.exists",
-                    new Object[]{"UF", "sigla", updatedSigla}, LOCALE_PT_BR)
-            );
-        }
+        assertUniquenessByNome(ufUpdateDto.nome());
+        assertUniquenessBySigla(ufUpdateDto.sigla());
     }
 
     private boolean hasSameAttributes(UF uf, UFUpdateDto ufUpdateDto) {
         return uf.getNome().equals(ufUpdateDto.nome()) &&
                 uf.getSigla().equals(ufUpdateDto.sigla());
+    }
+
+    public void assertUniqueness(UF uf) {
+        assertUniquenessByNome(uf.getNome());
+        assertUniquenessBySigla(uf.getSigla());
+    }
+
+    private void assertUniquenessBySigla(String sigla) {
+        if (uFRepository.existsBySigla(sigla)) {
+            throw new EntityAlreadyExistsException(
+                    messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"UF", "sigla", sigla}, LOCALE_PT_BR)
+            );
+        }
+    }
+
+    private void assertUniquenessByNome(String nome) {
+        if (uFRepository.existsByNome(nome)) {
+            throw new EntityAlreadyExistsException(
+                    messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"UF", "nome", nome}, LOCALE_PT_BR)
+            );
+        }
     }
 }

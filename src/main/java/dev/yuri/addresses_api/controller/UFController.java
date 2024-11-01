@@ -64,12 +64,15 @@ public class UFController {
     @PostMapping
     @Transactional
     public ResponseEntity<List<UF>> save(@RequestBody @Valid UFDto uFDto) {
+        var uf = new UF(uFDto);
+        uFService.assertUniqueness(uf);
+
         try {
-            uFService.save(new UF(uFDto));
+            uFService.save(uf);
             return ResponseEntity.ok(uFService.findAll());
         } catch (Exception e) {
             throw new EntityNotSavedException(
-                messageSource.getMessage("error.post", new Object[]{"UF"}, LOCALE_PT_BR)
+                messageSource.getMessage("error.entity.not.saved", new Object[]{"UF"}, LOCALE_PT_BR)
             );
         }
     }
@@ -82,7 +85,7 @@ public class UFController {
             messageSource.getMessage("error.entity.not.exists", new Object[]{"UF", codigo}, LOCALE_PT_BR))
         );
 
-        uFService.checkIfExists(uF, uFUpdateDto);
+        uFService.assertUpdatable(uF, uFUpdateDto);
 
         try {
             BeanUtils.copyProperties(uFUpdateDto, uF);
