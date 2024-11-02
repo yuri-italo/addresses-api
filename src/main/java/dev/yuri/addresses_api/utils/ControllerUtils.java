@@ -7,7 +7,7 @@ public final class ControllerUtils {
         throw new UnsupportedOperationException("ControllerUtils é uma classe utilitária e não pode ser instanciada.");
     }
 
-    public static boolean isUniqueResponse(Object... filters) {
+    public static boolean isFiltersApplied(Object... filters) {
         return Arrays.stream(filters).anyMatch(Objects::nonNull);
     }
 

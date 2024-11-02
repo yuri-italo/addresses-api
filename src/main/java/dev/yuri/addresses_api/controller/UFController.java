@@ -45,7 +45,7 @@ public class UFController {
             );
         }
 
-        if (ControllerUtils.isUniqueResponse(codigoUF, sigla, nome)) {
+        if (ControllerUtils.isFiltersApplied(codigoUF, sigla, nome)) {
             Optional<UF> elementByFilters = uFService.findElementByFilters(codigoUF, sigla, nome, status);
             if (elementByFilters.isPresent()) {
                 return ResponseEntity.ok(elementByFilters.get());

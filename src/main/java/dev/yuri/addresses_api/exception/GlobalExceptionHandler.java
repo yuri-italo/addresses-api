@@ -1,6 +1,6 @@
 package dev.yuri.addresses_api.exception;
 
-import dev.yuri.addresses_api.dto.response.ErrorDto;
+import dev.yuri.addresses_api.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -34,21 +34,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidFilterException.class)
     public ResponseEntity<?> handleInvalidFiler(InvalidFilterException ex) {
-        return ResponseEntity.status(400).body(new ErrorDto(ex.getMessage(), 400));
+        return ResponseEntity.status(400).body(new ErrorResponse(ex.getMessage(), 400));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException ex) {
-       return ResponseEntity.status(404).body(new ErrorDto(ex.getMessage(), 404));
+       return ResponseEntity.status(404).body(new ErrorResponse(ex.getMessage(), 404));
     }
 
     @ExceptionHandler(EntityNotSavedException.class)
     public ResponseEntity<?> handleEntityNotSaved(EntityNotSavedException ex) {
-        return ResponseEntity.status(500).body(new ErrorDto(ex.getMessage(), 500));
+        return ResponseEntity.status(500).body(new ErrorResponse(ex.getMessage(), 500));
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<?> handleEntityAlreadyExists(EntityAlreadyExistsException ex) {
-        return ResponseEntity.status(409).body(new ErrorDto(ex.getMessage(), 409));
+        return ResponseEntity.status(409).body(new ErrorResponse(ex.getMessage(), 409));
     }
 }
