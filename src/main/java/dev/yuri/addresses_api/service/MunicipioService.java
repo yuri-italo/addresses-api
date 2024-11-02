@@ -1,7 +1,9 @@
 package dev.yuri.addresses_api.service;
 
+import dev.yuri.addresses_api.controller.MunicipioController;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.entity.UF;
+import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.MunicipioRepository;
 import org.springframework.context.MessageSource;
@@ -41,5 +43,21 @@ public class MunicipioService {
 
     public List<Municipio> findAll() {
         return municipioRepository.findAll();
+    }
+
+    public void save(Municipio municipio) {
+        municipioRepository.save(municipio);
+    }
+
+    public void assertUniqueness(Municipio municipio) {
+        var nome = municipio.getNome();
+        var optionalMunicipio = municipioRepository.findByUfAndNome(municipio.getUf(), nome);
+
+        if (optionalMunicipio.isPresent()) {
+            throw new EntityAlreadyExistsException(
+                    messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"município", "nome", nome}, MunicipioController.LOCALE_PT_BR)
+            );
+        }
     }
 }

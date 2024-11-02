@@ -2,6 +2,8 @@ package dev.yuri.addresses_api.repository;
 
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.entity.UF;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +29,6 @@ public interface MunicipioRepository extends JpaRepository<Municipio, Long> {
     List<Municipio> getElementsByAppliedFields(@Param("uF") UF uF,
                                                @Param("nome") String nome,
                                                @Param("status") Integer status);
+
+    Optional<Municipio> findByUfAndNome(UF uf, String nome);
 }

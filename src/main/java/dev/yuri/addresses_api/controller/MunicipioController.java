@@ -1,16 +1,19 @@
 package dev.yuri.addresses_api.controller;
 
+import dev.yuri.addresses_api.dto.request.MunicipioDto;
 import dev.yuri.addresses_api.dto.response.MunicipioResponse;
 import dev.yuri.addresses_api.entity.Municipio;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
+import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.MunicipioService;
+import dev.yuri.addresses_api.service.UFService;
 import dev.yuri.addresses_api.utils.ControllerUtils;
+import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -18,12 +21,14 @@ import java.util.*;
 @RequestMapping("/municipio")
 public class MunicipioController {
     private final MunicipioService municipioService;
+    private final UFService uFService;
     private final MessageSource messageSource;
     private static final List<String> EXPECTED_FILTERS = Arrays.asList("codigoMunicipio","codigoUF", "nome", "status");
     public static final Locale LOCALE_PT_BR = new Locale("pt", "BR");
 
-    public MunicipioController(MunicipioService municipioService, MessageSource messageSource) {
+    public MunicipioController(MunicipioService municipioService, UFService uFService, MessageSource messageSource) {
         this.municipioService = municipioService;
+        this.uFService = uFService;
         this.messageSource = messageSource;
     }
 
@@ -58,6 +63,26 @@ public class MunicipioController {
         }
 
         return ResponseEntity.ok(MunicipioResponse.fromEntities(municipioService.findAll()));
+    }
+
+    @PostMapping
+    @Transactional
+    public ResponseEntity<List<MunicipioResponse>> save(@Valid @RequestBody MunicipioDto municipioDto) {
+        var codigoUF = municipioDto.codigoUF();
+        var uF = uFService.getByCodigoUF(codigoUF).orElseThrow(() -> new EntityNotFoundException(
+                messageSource.getMessage("error.entity.not.exists", new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
+
+        var municipio = new Municipio(municipioDto, uF);
+        municipioService.assertUniqueness(municipio);
+
+        try {
+            municipioService.save(municipio);
+            return ResponseEntity.ok(MunicipioResponse.fromEntities(municipioService.findAll()));
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"município"}, LOCALE_PT_BR)
+            );
+        }
     }
 }
 
