@@ -1,6 +1,7 @@
 package dev.yuri.addresses_api.service;
 
 import dev.yuri.addresses_api.controller.MunicipioController;
+import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.entity.UF;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
@@ -49,9 +50,8 @@ public class MunicipioService {
         municipioRepository.save(municipio);
     }
 
-    public void assertUniqueness(Municipio municipio) {
-        var nome = municipio.getNome();
-        var optionalMunicipio = municipioRepository.findByUfAndNome(municipio.getUf(), nome);
+    public void assertUniqueness(UF uf, String nome) {
+        var optionalMunicipio = municipioRepository.findByUfAndNome(uf, nome);
 
         if (optionalMunicipio.isPresent()) {
             throw new EntityAlreadyExistsException(
@@ -59,5 +59,27 @@ public class MunicipioService {
                             new Object[]{"município", "nome", nome}, MunicipioController.LOCALE_PT_BR)
             );
         }
+    }
+
+    public Optional<Municipio> getByCodigoMunicipio(Long codigoMunicipio) {
+      return   municipioRepository.findById(codigoMunicipio);
+    }
+
+    public void assertUpdatable(Municipio municipio, MunicipioUpdateDto municipioUpdateDto) {
+        if (hasSameAttributes(municipio, municipioUpdateDto)) {
+            return;
+        }
+
+        var codigoUF = municipioUpdateDto.codigoUF();
+        var uF = uFService.getByCodigoUF(codigoUF)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
+
+        this.assertUniqueness(uF, municipioUpdateDto.nome());
+    }
+
+    private boolean hasSameAttributes(Municipio municipio, MunicipioUpdateDto municipioUpdateDto) {
+        return municipio.getUf().getCodigoUF().equals(municipioUpdateDto.codigoUF()) &&
+                municipio.getNome().equals(municipioUpdateDto.nome());
     }
 }

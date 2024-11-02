@@ -1,6 +1,7 @@
 package dev.yuri.addresses_api.controller;
 
 import dev.yuri.addresses_api.dto.request.MunicipioDto;
+import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.dto.response.MunicipioResponse;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
@@ -10,6 +11,7 @@ import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.service.UFService;
 import dev.yuri.addresses_api.utils.ControllerUtils;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +75,7 @@ public class MunicipioController {
                 messageSource.getMessage("error.entity.not.exists", new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
 
         var municipio = new Municipio(municipioDto, uF);
-        municipioService.assertUniqueness(municipio);
+        municipioService.assertUniqueness(municipio.getUf(), municipio.getNome());
 
         try {
             municipioService.save(municipio);
@@ -83,6 +85,35 @@ public class MunicipioController {
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"município"}, LOCALE_PT_BR)
             );
         }
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity<List<MunicipioResponse>> update(@Valid @RequestBody MunicipioUpdateDto municipioUpdateDto) {
+        var codigoMunicipio = municipioUpdateDto.codigoMunicipio();
+        var codigoUF = municipioUpdateDto.codigoUF();
+
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+
+        var uF = uFService.getByCodigoUF(codigoUF)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
+
+        municipioService.assertUpdatable(municipio, municipioUpdateDto);
+
+        try {
+            BeanUtils.copyProperties(municipioUpdateDto, municipio);
+            municipio.setUf(uF);
+            municipioService.save(municipio);
+            return ResponseEntity.ok(MunicipioResponse.fromEntities(municipioService.findAll()));
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"município"}, LOCALE_PT_BR)
+            );
+        }
+
     }
 }
 
