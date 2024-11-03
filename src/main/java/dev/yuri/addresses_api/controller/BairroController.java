@@ -1,6 +1,7 @@
 package dev.yuri.addresses_api.controller;
 
 import dev.yuri.addresses_api.dto.request.BairroDto;
+import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
 import dev.yuri.addresses_api.dto.response.BairroResponse;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
@@ -10,6 +11,7 @@ import dev.yuri.addresses_api.service.BairroService;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.utils.ControllerUtils;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +79,34 @@ public class BairroController {
         bairroService.assertUniqueness(bairro.getMunicipio(), bairro.getNome());
 
         try {
+            bairroService.save(bairro);
+            return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"bairro"}, LOCALE_PT_BR)
+            );
+        }
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity<List<BairroResponse>> update(@Valid @RequestBody BairroUpdateDto bairroUpdateDto) {
+        var codigoBairro = bairroUpdateDto.codigoBairro();
+        var codigoMunicipio = bairroUpdateDto.codigoMunicipio();
+
+        var bairro = bairroService.getByCodigoBairro(codigoBairro)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"bairro", codigoBairro}, LOCALE_PT_BR)));
+
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+
+        bairroService.assertUpdatable(bairro, bairroUpdateDto);
+
+        try {
+            BeanUtils.copyProperties(bairroUpdateDto, bairro);
+            bairro.setMunicipio(municipio);
             bairroService.save(bairro);
             return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
         } catch (Exception e) {

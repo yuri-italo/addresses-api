@@ -1,11 +1,14 @@
 package dev.yuri.addresses_api.service;
 
 import dev.yuri.addresses_api.controller.BairroController;
+import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
+import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.BairroRepository;
+import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -60,5 +63,27 @@ public class BairroService {
 
     public void save(Bairro bairro) {
        bairroRepository.save(bairro);
+    }
+
+    public Optional<Bairro> getByCodigoBairro(Long codigoBairro) {
+        return bairroRepository.findById(codigoBairro);
+    }
+
+    public void assertUpdatable(Bairro bairro, BairroUpdateDto bairroUpdateDto) {
+        if (hasSameAttributes(bairro, bairroUpdateDto)) {
+            return;
+        }
+
+        var codigoMunicipio = bairroUpdateDto.codigoMunicipio();
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+
+        this.assertUniqueness(municipio, bairroUpdateDto.nome());
+    }
+
+    private boolean hasSameAttributes(Bairro bairro, BairroUpdateDto bairroUpdateDto) {
+        return bairro.getMunicipio().getCodigoMunicipio().equals(bairroUpdateDto.codigoMunicipio()) &&
+                bairro.getNome().equals(bairroUpdateDto.nome());
     }
 }
