@@ -1,16 +1,19 @@
 package dev.yuri.addresses_api.controller;
 
+import dev.yuri.addresses_api.dto.request.BairroDto;
 import dev.yuri.addresses_api.dto.response.BairroResponse;
 import dev.yuri.addresses_api.entity.Bairro;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
+import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.BairroService;
+import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.utils.ControllerUtils;
+import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -18,12 +21,14 @@ import java.util.*;
 @RequestMapping("/bairro")
 public class BairroController {
     private final BairroService bairroService;
+    private final MunicipioService municipioService;
     private final MessageSource messageSource;
     private static final List<String> EXPECTED_FILTERS = Arrays.asList("codigoBairro", "codigoMunicipio", "nome", "status");
     public static final Locale LOCALE_PT_BR = new Locale("pt", "BR");
 
-    public BairroController(BairroService bairroService, MessageSource messageSource) {
+    public BairroController(BairroService bairroService, MunicipioService municipioService, MessageSource messageSource) {
         this.bairroService = bairroService;
+        this.municipioService = municipioService;
         this.messageSource = messageSource;
     }
 
@@ -59,4 +64,25 @@ public class BairroController {
 
         return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
     }
-}
+
+    @PostMapping
+    @Transactional
+    public ResponseEntity<List<BairroResponse>> save(@Valid @RequestBody BairroDto bairroDto) {
+        var codigoMunicipio = bairroDto.codigoMunicipio();
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+
+        var bairro = new Bairro(bairroDto, municipio);
+        bairroService.assertUniqueness(bairro.getMunicipio(), bairro.getNome());
+
+        try {
+            bairroService.save(bairro);
+            return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"bairro"}, LOCALE_PT_BR)
+            );
+        }
+    }
+ }

@@ -27,4 +27,6 @@ public interface BairroRepository extends JpaRepository<Bairro, Long> {
     List<Bairro> getElementsByAppliedFields(@Param("municipio") Municipio municipio,
                                             @Param("nome") String nome,
                                             @Param("status") Integer status);
+
+    Optional<Bairro> findByMunicipioAndNome(Municipio municipio, String nome);
 }

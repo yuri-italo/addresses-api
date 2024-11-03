@@ -1,7 +1,9 @@
 package dev.yuri.addresses_api.service;
 
+import dev.yuri.addresses_api.controller.BairroController;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.entity.Municipio;
+import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.BairroRepository;
 import org.springframework.context.MessageSource;
@@ -43,5 +45,20 @@ public class BairroService {
 
     public List<Bairro> findAll() {
         return bairroRepository.findAll();
+    }
+
+    public void assertUniqueness(Municipio municipio, String nome) {
+        var optionalBairro = bairroRepository.findByMunicipioAndNome(municipio, nome);
+
+        if (optionalBairro.isPresent()) {
+            throw new EntityAlreadyExistsException(
+                    messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"bairro", "nome", nome}, BairroController.LOCALE_PT_BR)
+            );
+        }
+    }
+
+    public void save(Bairro bairro) {
+       bairroRepository.save(bairro);
     }
 }
