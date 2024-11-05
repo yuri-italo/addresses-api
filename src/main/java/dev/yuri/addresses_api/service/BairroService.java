@@ -2,13 +2,11 @@ package dev.yuri.addresses_api.service;
 
 import dev.yuri.addresses_api.controller.BairroController;
 import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
-import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
 import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.BairroRepository;
-import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
