@@ -7,7 +7,7 @@ import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.UFService;
-import dev.yuri.addresses_api.utils.ControllerUtils;
+import dev.yuri.addresses_api.utils.ControllerUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -38,14 +38,14 @@ public class UFController {
         @RequestParam(required = false) Integer status,
         @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtils.getInvalidFilters(EXPECTED_FILTERS, allFilters);
+        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
         if (!invalidFilters.isEmpty()) {
             throw new InvalidFilterException(
                 messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
             );
         }
 
-        if (ControllerUtils.isFiltersApplied(codigoUF, sigla, nome)) {
+        if (ControllerUtil.isFiltersApplied(codigoUF, sigla, nome)) {
             Optional<UF> elementByFilters = uFService.findElementByFilters(codigoUF, sigla, nome, status);
             if (elementByFilters.isPresent()) {
                 return ResponseEntity.ok(elementByFilters.get());

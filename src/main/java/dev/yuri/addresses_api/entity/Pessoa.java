@@ -1,15 +1,19 @@
 package dev.yuri.addresses_api.entity;
 
+import dev.yuri.addresses_api.dto.request.PessoaDto;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 @Entity
 @Table(name = "TB_PESSOA")
 public class Pessoa {
@@ -50,6 +54,15 @@ public class Pessoa {
     @NotNull
     @Column(name = "STATUS", nullable = false)
     private Integer status;
+
+    public Pessoa(@Valid PessoaDto pessoaDto) {
+        this.nome = pessoaDto.nome();
+        this.sobrenome = pessoaDto.sobrenome();
+        this.idade = pessoaDto.idade();
+        this.login = pessoaDto.login();
+        this.senha = pessoaDto.senha();
+        this.status = pessoaDto.status();
+    }
 }
 
 

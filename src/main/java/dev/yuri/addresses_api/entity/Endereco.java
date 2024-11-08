@@ -1,10 +1,13 @@
 package dev.yuri.addresses_api.entity;
 
+import dev.yuri.addresses_api.dto.request.EnderecoDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Objects;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -47,4 +50,13 @@ public class Endereco {
     @Size(max = 10)
     @Column(name = "CEP", nullable = false, unique = true)
     private String cep;
+
+    public Endereco(Pessoa pessoa, Bairro bairro, EnderecoDto enderecoDto) {
+        this.pessoa = Objects.requireNonNull(pessoa);
+        this.bairro = Objects.requireNonNull(bairro);
+        this.nomeRua = enderecoDto.nomeRua();
+        this.numero = enderecoDto.numero();
+        this.complemento = enderecoDto.complemento();
+        this.cep = enderecoDto.cep();
+    }
 }

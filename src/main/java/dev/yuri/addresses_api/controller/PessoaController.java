@@ -1,16 +1,18 @@
 package dev.yuri.addresses_api.controller;
 
+import dev.yuri.addresses_api.dto.request.PessoaDto;
 import dev.yuri.addresses_api.dto.response.PessoaResponse;
 import dev.yuri.addresses_api.entity.Pessoa;
+import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
+import dev.yuri.addresses_api.service.EnderecoService;
 import dev.yuri.addresses_api.service.PessoaService;
-import dev.yuri.addresses_api.utils.ControllerUtils;
+import dev.yuri.addresses_api.utils.ControllerUtil;
+import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -18,12 +20,14 @@ import java.util.*;
 @RequestMapping("/pessoa")
 public class PessoaController {
     private final PessoaService pessoaService;
+    private final EnderecoService enderecoService;
     private final MessageSource messageSource;
     private static final List<String> EXPECTED_FILTERS = Arrays.asList("codigoPessoa", "login", "status");
     public static final Locale LOCALE_PT_BR = new Locale("pt", "BR");
 
-    public PessoaController(PessoaService pessoaService, MessageSource messageSource) {
+    public PessoaController(PessoaService pessoaService, EnderecoService enderecoService, MessageSource messageSource) {
         this.pessoaService = pessoaService;
+        this.enderecoService = enderecoService;
         this.messageSource = messageSource;
     }
 
@@ -34,14 +38,14 @@ public class PessoaController {
             @RequestParam(required = false) Integer status,
             @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtils.getInvalidFilters(EXPECTED_FILTERS, allFilters);
+        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
         if (!invalidFilters.isEmpty()) {
             throw new InvalidFilterException(
                     messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
             );
         }
 
-        if (ControllerUtils.isFiltersApplied(codigoPessoa)) {
+        if (ControllerUtil.isFiltersApplied(codigoPessoa)) {
             Optional<Pessoa> elementByFilters = pessoaService.findElementByFilters(codigoPessoa, login, status);
             if (elementByFilters.isPresent()) {
                 var pessoa = elementByFilters.get();
@@ -52,11 +56,27 @@ public class PessoaController {
             }
         }
 
-        if (ControllerUtils.isFiltersApplied(login, status)) {
+        if (ControllerUtil.isFiltersApplied(login, status)) {
             var elementsByAppliedFilters = pessoaService.findElementsByAppliedFilters(login, status);
             return ResponseEntity.ok(PessoaResponse.fromEntities(elementsByAppliedFilters));
         }
 
         return ResponseEntity.ok(PessoaResponse.fromEntities(pessoaService.findAll()));
+    }
+
+    @PostMapping
+    @Transactional
+    public ResponseEntity<List<PessoaResponse>> save(@Valid @RequestBody PessoaDto pessoaDto) {
+        var pessoa = pessoaService.save(pessoaDto);
+        var enderecos = enderecoService.toEntityList(pessoaDto, pessoa);
+
+        try {
+            enderecoService.saveAll(enderecos);
+            return ResponseEntity.ok(PessoaResponse.fromEntities(pessoaService.findAll()));
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"pessoa"}, LOCALE_PT_BR)
+            );
+        }
     }
 }

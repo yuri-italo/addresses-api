@@ -9,7 +9,7 @@ import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.service.UFService;
-import dev.yuri.addresses_api.utils.ControllerUtils;
+import dev.yuri.addresses_api.utils.ControllerUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -42,14 +42,14 @@ public class MunicipioController {
             @RequestParam(required = false) Integer status,
             @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtils.getInvalidFilters(EXPECTED_FILTERS, allFilters);
+        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
         if (!invalidFilters.isEmpty()) {
             throw new InvalidFilterException(
                     messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
             );
         }
 
-        if (ControllerUtils.isFiltersApplied(codigoMunicipio)) {
+        if (ControllerUtil.isFiltersApplied(codigoMunicipio)) {
             Optional<Municipio> elementByFilters = municipioService.findElementByFilters(
                 codigoMunicipio, codigoUF, nome, status);
             if (elementByFilters.isPresent()) {
@@ -59,7 +59,7 @@ public class MunicipioController {
             }
         }
 
-        if (ControllerUtils.isFiltersApplied(codigoUF, nome, status)) {
+        if (ControllerUtil.isFiltersApplied(codigoUF, nome, status)) {
             var elementsByAppliedFilters = municipioService.findElementsByAppliedFilters(codigoUF, nome, status);
             return ResponseEntity.ok(MunicipioResponse.fromEntities(elementsByAppliedFilters));
         }

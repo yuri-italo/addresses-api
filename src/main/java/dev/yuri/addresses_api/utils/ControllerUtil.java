@@ -2,8 +2,8 @@ package dev.yuri.addresses_api.utils;
 
 import java.util.*;
 
-public final class ControllerUtils {
-    private ControllerUtils() {
+public final class ControllerUtil {
+    private ControllerUtil() {
         throw new UnsupportedOperationException("ControllerUtils é uma classe utilitária e não pode ser instanciada.");
     }
 

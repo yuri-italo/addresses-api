@@ -9,7 +9,7 @@ import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.BairroService;
 import dev.yuri.addresses_api.service.MunicipioService;
-import dev.yuri.addresses_api.utils.ControllerUtils;
+import dev.yuri.addresses_api.utils.ControllerUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -42,14 +42,14 @@ public class BairroController {
             @RequestParam(required = false) Integer status,
             @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtils.getInvalidFilters(EXPECTED_FILTERS, allFilters);
+        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
         if (!invalidFilters.isEmpty()) {
             throw new InvalidFilterException(
                     messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
             );
         }
 
-        if (ControllerUtils.isFiltersApplied(codigoBairro)) {
+        if (ControllerUtil.isFiltersApplied(codigoBairro)) {
             Optional<Bairro> elementByFilters = bairroService.findElementByFilters(
                     codigoBairro, codigoMunicipio, nome, status);
             if (elementByFilters.isPresent()) {
@@ -59,7 +59,7 @@ public class BairroController {
             }
         }
 
-        if (ControllerUtils.isFiltersApplied(codigoMunicipio, nome, status)) {
+        if (ControllerUtil.isFiltersApplied(codigoMunicipio, nome, status)) {
             var elementsByAppliedFilters = bairroService.findElementsByAppliedFilters(codigoMunicipio, nome, status);
             return ResponseEntity.ok(BairroResponse.fromEntities(elementsByAppliedFilters));
         }

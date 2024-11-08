@@ -22,4 +22,6 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
             "AND (:status IS NULL OR p.status = :status)")
     List<Pessoa> getElementsByAppliedFields(@Param("login") String login,
                                             @Param("status") Integer status);
+
+    Optional<Pessoa> findByLogin(String login);
 }
