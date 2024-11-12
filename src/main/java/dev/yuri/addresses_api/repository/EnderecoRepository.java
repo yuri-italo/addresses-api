@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
     List<Endereco> findByPessoa(Pessoa pessoa);
+
+    List<Endereco> findAllByPessoa(Pessoa pessoa);
 }

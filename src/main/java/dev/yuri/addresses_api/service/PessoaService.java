@@ -2,10 +2,10 @@ package dev.yuri.addresses_api.service;
 
 import dev.yuri.addresses_api.controller.MunicipioController;
 import dev.yuri.addresses_api.dto.request.PessoaDto;
+import dev.yuri.addresses_api.dto.request.PessoaUpdateDto;
 import dev.yuri.addresses_api.entity.Endereco;
 import dev.yuri.addresses_api.entity.Pessoa;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
-import dev.yuri.addresses_api.repository.EnderecoRepository;
 import dev.yuri.addresses_api.repository.PessoaRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -16,12 +16,12 @@ import java.util.Optional;
 @Service
 public class PessoaService {
     private final PessoaRepository pessoaRepository;
-    private final EnderecoRepository enderecoRepository;
+    private final EnderecoService enderecoService;
     private final MessageSource messageSource;
 
-    public PessoaService(PessoaRepository pessoaRepository, EnderecoRepository enderecoRepository, MessageSource messageSource) {
+    public PessoaService(PessoaRepository pessoaRepository, EnderecoService enderecoService, MessageSource messageSource) {
         this.pessoaRepository = pessoaRepository;
-        this.enderecoRepository = enderecoRepository;
+        this.enderecoService = enderecoService;
         this.messageSource = messageSource;
     }
 
@@ -38,7 +38,7 @@ public class PessoaService {
     }
 
     public List<Endereco> getEnderecosByPessoa(Pessoa pessoa) {
-        return enderecoRepository.findByPessoa(pessoa);
+        return enderecoService.findByPessoa(pessoa);
     }
 
     public void assertUniqueness(String login) {
@@ -55,5 +55,25 @@ public class PessoaService {
     public Pessoa save(PessoaDto pessoaDto) {
         this.assertUniqueness(pessoaDto.login());
         return pessoaRepository.save(new Pessoa(pessoaDto));
+    }
+
+    public Pessoa save(Pessoa pessoa) {
+        return pessoaRepository.save(pessoa);
+    }
+
+    public Optional<Pessoa> getByCodigoPessoa(Long codigoPessoa) {
+        return pessoaRepository.findById(codigoPessoa);
+    }
+
+    public void assertUpdatable(Pessoa pessoa, PessoaUpdateDto pessoaUpdateDto) {
+        if (hasSameAttributes(pessoa, pessoaUpdateDto)) {
+            return;
+        }
+
+        this.assertUniqueness(pessoaUpdateDto.login());
+    }
+
+    private boolean hasSameAttributes(Pessoa pessoa, PessoaUpdateDto pessoaUpdateDto) {
+        return pessoa.getLogin().equals(pessoaUpdateDto.login());
     }
 }

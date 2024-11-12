@@ -37,6 +37,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(new ErrorResponse(ex.getMessage(), 400));
     }
 
+    @ExceptionHandler(AddressDoesNotBelongToPersonException.class)
+    public ResponseEntity<?> AddressDoesNotBelongToPersonFiler(AddressDoesNotBelongToPersonException ex) {
+        return ResponseEntity.status(400).body(new ErrorResponse(ex.getMessage(), 400));
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException ex) {
        return ResponseEntity.status(404).body(new ErrorResponse(ex.getMessage(), 404));

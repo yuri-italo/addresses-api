@@ -1,14 +1,18 @@
 package dev.yuri.addresses_api.controller;
 
 import dev.yuri.addresses_api.dto.request.PessoaDto;
+import dev.yuri.addresses_api.dto.request.PessoaUpdateDto;
 import dev.yuri.addresses_api.dto.response.PessoaResponse;
+import dev.yuri.addresses_api.entity.Endereco;
 import dev.yuri.addresses_api.entity.Pessoa;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
 import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.EnderecoService;
 import dev.yuri.addresses_api.service.PessoaService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,5 +82,38 @@ public class PessoaController {
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"pessoa"}, LOCALE_PT_BR)
             );
         }
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity<List<PessoaResponse>> update(@Valid @RequestBody PessoaUpdateDto pessoaUpdateDto) {
+        var codigoPessoa = pessoaUpdateDto.codigoPessoa();
+        var pessoa = pessoaService.getByCodigoPessoa(codigoPessoa)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"pessoa", codigoPessoa}, LOCALE_PT_BR)));
+
+        pessoaService.assertUpdatable(pessoa, pessoaUpdateDto);
+
+        try {
+            BeanUtils.copyProperties(pessoaUpdateDto, pessoa);
+            pessoa = pessoaService.save(pessoa);
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"pessoa"}, LOCALE_PT_BR)
+            );
+        }
+
+        List<Endereco> enderecoList = enderecoService.toEntityList(pessoaUpdateDto.enderecos());
+        enderecoService.assertUpdatable(enderecoList, pessoa);
+
+        try {
+            enderecoService.saveAll(enderecoList, pessoa);
+        } catch (Exception e) {
+            throw new EntityNotSavedException(
+                    messageSource.getMessage("error.entity.not.saved", new Object[]{"endereco"}, LOCALE_PT_BR)
+            );
+        }
+
+        return ResponseEntity.ok(List.of(new PessoaResponse(pessoa)));
     }
 }

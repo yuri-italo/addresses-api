@@ -1,16 +1,19 @@
 package dev.yuri.addresses_api.entity;
 
 import dev.yuri.addresses_api.dto.request.EnderecoDto;
+import dev.yuri.addresses_api.dto.request.EnderecoUpdateDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 @Entity
 @Table(name = "TB_ENDERECO")
 public class Endereco {
@@ -58,5 +61,18 @@ public class Endereco {
         this.numero = enderecoDto.numero();
         this.complemento = enderecoDto.complemento();
         this.cep = enderecoDto.cep();
+    }
+
+    public Endereco(EnderecoUpdateDto enderecoUpdateDto, Pessoa pessoa, Bairro bairro) {
+        if (enderecoUpdateDto.codigoEndereco() != null) {
+            this.codigoEndereco = enderecoUpdateDto.codigoEndereco();
+        }
+
+        this.pessoa = Objects.requireNonNull(pessoa);
+        this.bairro = Objects.requireNonNull(bairro);
+        this.nomeRua = enderecoUpdateDto.nomeRua();
+        this.numero = enderecoUpdateDto.numero();
+        this.complemento = enderecoUpdateDto.complemento();
+        this.cep = enderecoUpdateDto.cep();
     }
 }
