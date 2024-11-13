@@ -108,12 +108,11 @@ public class PessoaController {
 
         try {
             enderecoService.saveAll(enderecoList, pessoa);
+            return ResponseEntity.ok(PessoaResponse.fromEntities(pessoaService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"endereco"}, LOCALE_PT_BR)
             );
         }
-
-        return ResponseEntity.ok(List.of(new PessoaResponse(pessoa)));
     }
 }
