@@ -5,15 +5,12 @@ import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.entity.UF;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
-import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.MunicipioRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
-import static dev.yuri.addresses_api.controller.MunicipioController.LOCALE_PT_BR;
 
 @Service
 public class MunicipioService {
@@ -34,9 +31,7 @@ public class MunicipioService {
     public List<Municipio> findElementsByAppliedFilters(Long codigoUF, String nome, Integer status) {
         UF uF = null;
         if (codigoUF != null) {
-            uF = uFService.getByCodigoUF(codigoUF).orElseThrow(() -> new EntityNotFoundException(
-                    messageSource.getMessage("error.entity.not.exists", new Object[]{"UF", codigoUF}, LOCALE_PT_BR))
-            );
+            uF = uFService.getByCodigoUF(codigoUF);
         }
 
         return municipioRepository.getElementsByAppliedFields(uF, nome, status);
@@ -71,9 +66,7 @@ public class MunicipioService {
         }
 
         var codigoUF = municipioUpdateDto.codigoUF();
-        var uF = uFService.getByCodigoUF(codigoUF)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
+        var uF = uFService.getByCodigoUF(codigoUF);
 
         this.assertUniqueness(uF, municipioUpdateDto.nome());
     }

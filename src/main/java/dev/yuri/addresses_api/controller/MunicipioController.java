@@ -71,8 +71,7 @@ public class MunicipioController {
     @Transactional
     public ResponseEntity<List<MunicipioResponse>> save(@Valid @RequestBody MunicipioDto municipioDto) {
         var codigoUF = municipioDto.codigoUF();
-        var uF = uFService.getByCodigoUF(codigoUF).orElseThrow(() -> new EntityNotFoundException(
-                messageSource.getMessage("error.entity.not.exists", new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
+        var uF = uFService.getByCodigoUF(codigoUF);
 
         var municipio = new Municipio(municipioDto, uF);
         municipioService.assertUniqueness(municipio.getUf(), municipio.getNome());
@@ -97,9 +96,7 @@ public class MunicipioController {
                 .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
                         new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
 
-        var uF = uFService.getByCodigoUF(codigoUF)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"UF", codigoUF}, LOCALE_PT_BR)));
+        var uF = uFService.getByCodigoUF(codigoUF);
 
         municipioService.assertUpdatable(municipio, municipioUpdateDto);
 

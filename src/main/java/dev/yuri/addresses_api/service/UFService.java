@@ -3,6 +3,7 @@ package dev.yuri.addresses_api.service;
 import dev.yuri.addresses_api.dto.request.UFUpdateDto;
 import dev.yuri.addresses_api.entity.UF;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.UFRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -39,8 +40,11 @@ public class UFService {
         uFRepository.save(uf);
     }
 
-    public Optional<UF> getByCodigoUF(Long codigoUF) {
-        return  uFRepository.findById(codigoUF);
+    public UF getByCodigoUF(Long codigoUF) {
+        return  uFRepository.findById(codigoUF)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"UF", codigoUF}, LOCALE_PT_BR))
+        );
     }
 
     public void assertUpdatable(UF uf, UFUpdateDto ufUpdateDto) {

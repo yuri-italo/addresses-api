@@ -3,9 +3,7 @@ package dev.yuri.addresses_api.controller;
 import dev.yuri.addresses_api.dto.request.UFDto;
 import dev.yuri.addresses_api.dto.request.UFUpdateDto;
 import dev.yuri.addresses_api.entity.UF;
-import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
-import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.UFService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
 import jakarta.validation.Valid;
@@ -38,12 +36,7 @@ public class UFController {
         @RequestParam(required = false) Integer status,
         @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
-        if (!invalidFilters.isEmpty()) {
-            throw new InvalidFilterException(
-                messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
-            );
-        }
+        ControllerUtil.validateFilters(EXPECTED_FILTERS, allFilters, messageSource);
 
         if (ControllerUtil.isFiltersApplied(codigoUF, sigla, nome)) {
             Optional<UF> elementByFilters = uFService.findElementByFilters(codigoUF, sigla, nome, status);
@@ -81,9 +74,7 @@ public class UFController {
     @Transactional
     public ResponseEntity<List<UF>> update(@RequestBody @Valid UFUpdateDto uFUpdateDto) {
         var codigo = uFUpdateDto.codigoUF();
-        var uF = uFService.getByCodigoUF(codigo).orElseThrow(() -> new EntityNotFoundException(
-            messageSource.getMessage("error.entity.not.exists", new Object[]{"UF", codigo}, LOCALE_PT_BR))
-        );
+        var uF = uFService.getByCodigoUF(codigo);
 
         uFService.assertUpdatable(uF, uFUpdateDto);
 
