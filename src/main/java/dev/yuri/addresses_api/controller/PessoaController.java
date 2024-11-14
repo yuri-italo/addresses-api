@@ -5,9 +5,7 @@ import dev.yuri.addresses_api.dto.request.PessoaUpdateDto;
 import dev.yuri.addresses_api.dto.response.PessoaResponse;
 import dev.yuri.addresses_api.entity.Endereco;
 import dev.yuri.addresses_api.entity.Pessoa;
-import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
-import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.EnderecoService;
 import dev.yuri.addresses_api.service.PessoaService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
@@ -42,12 +40,7 @@ public class PessoaController {
             @RequestParam(required = false) Integer status,
             @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
-        if (!invalidFilters.isEmpty()) {
-            throw new InvalidFilterException(
-                    messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
-            );
-        }
+        ControllerUtil.validateFilters(EXPECTED_FILTERS, allFilters, messageSource);
 
         if (ControllerUtil.isFiltersApplied(codigoPessoa)) {
             Optional<Pessoa> elementByFilters = pessoaService.findElementByFilters(codigoPessoa, login, status);
@@ -87,11 +80,7 @@ public class PessoaController {
     @PutMapping
     @Transactional
     public ResponseEntity<List<PessoaResponse>> update(@Valid @RequestBody PessoaUpdateDto pessoaUpdateDto) {
-        var codigoPessoa = pessoaUpdateDto.codigoPessoa();
-        var pessoa = pessoaService.getByCodigoPessoa(codigoPessoa)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"pessoa", codigoPessoa}, LOCALE_PT_BR)));
-
+        var pessoa = pessoaService.getByCodigoPessoa(pessoaUpdateDto.codigoPessoa());
         pessoaService.assertUpdatable(pessoa, pessoaUpdateDto);
 
         try {

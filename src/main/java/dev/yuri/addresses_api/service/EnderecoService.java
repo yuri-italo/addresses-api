@@ -87,9 +87,7 @@ public class EnderecoService {
 
             var bairro = bairroService.getByCodigoBairro(codigoBairro);
 
-            var pessoa = pessoaService.getByCodigoPessoa(codigoPessoa)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(
-                        "error.entity.not.exists", new Object[]{"pessoa", codigoPessoa}, LOCALE_PT_BR)));
+            var pessoa = pessoaService.getByCodigoPessoa(codigoPessoa);
 
             return new Endereco(enderecoUpdateDto, pessoa, bairro);
         }).collect(Collectors.toList());

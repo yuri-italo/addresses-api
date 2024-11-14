@@ -1,11 +1,12 @@
 package dev.yuri.addresses_api.service;
 
-import dev.yuri.addresses_api.controller.MunicipioController;
+import dev.yuri.addresses_api.controller.PessoaController;
 import dev.yuri.addresses_api.dto.request.PessoaDto;
 import dev.yuri.addresses_api.dto.request.PessoaUpdateDto;
 import dev.yuri.addresses_api.entity.Endereco;
 import dev.yuri.addresses_api.entity.Pessoa;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.PessoaRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class PessoaService {
         if (optionalPessoa.isPresent()) {
             throw new EntityAlreadyExistsException(
                     messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"pessoa", "login", login}, MunicipioController.LOCALE_PT_BR)
+                            new Object[]{"pessoa", "login", login}, PessoaController.LOCALE_PT_BR)
             );
         }
     }
@@ -61,8 +62,10 @@ public class PessoaService {
         return pessoaRepository.save(pessoa);
     }
 
-    public Optional<Pessoa> getByCodigoPessoa(Long codigoPessoa) {
-        return pessoaRepository.findById(codigoPessoa);
+    public Pessoa getByCodigoPessoa(Long codigoPessoa) {
+        return pessoaRepository.findById(codigoPessoa)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"pessoa", codigoPessoa}, PessoaController.LOCALE_PT_BR)));
     }
 
     public void assertUpdatable(Pessoa pessoa, PessoaUpdateDto pessoaUpdateDto) {
