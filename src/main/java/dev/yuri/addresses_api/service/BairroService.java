@@ -5,6 +5,7 @@ import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.BairroRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -57,8 +58,10 @@ public class BairroService {
        bairroRepository.save(bairro);
     }
 
-    public Optional<Bairro> getByCodigoBairro(Long codigoBairro) {
-        return bairroRepository.findById(codigoBairro);
+    public Bairro getByCodigoBairro(Long codigoBairro) {
+        return bairroRepository.findById(codigoBairro)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"bairro", codigoBairro}, BairroController.LOCALE_PT_BR)));
     }
 
     public void assertUpdatable(Bairro bairro, BairroUpdateDto bairroUpdateDto) {

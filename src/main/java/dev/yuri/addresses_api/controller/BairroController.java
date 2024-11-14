@@ -4,9 +4,7 @@ import dev.yuri.addresses_api.dto.request.BairroDto;
 import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
 import dev.yuri.addresses_api.dto.response.BairroResponse;
 import dev.yuri.addresses_api.entity.Bairro;
-import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
-import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.BairroService;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
@@ -42,12 +40,7 @@ public class BairroController {
             @RequestParam(required = false) Integer status,
             @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
-        if (!invalidFilters.isEmpty()) {
-            throw new InvalidFilterException(
-                    messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
-            );
-        }
+        ControllerUtil.validateFilters(EXPECTED_FILTERS, allFilters, messageSource);
 
         if (ControllerUtil.isFiltersApplied(codigoBairro)) {
             Optional<Bairro> elementByFilters = bairroService.findElementByFilters(
@@ -70,9 +63,7 @@ public class BairroController {
     @PostMapping
     @Transactional
     public ResponseEntity<List<BairroResponse>> save(@Valid @RequestBody BairroDto bairroDto) {
-        var codigoMunicipio = bairroDto.codigoMunicipio();
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
-
+        var municipio = municipioService.getByCodigoMunicipio(bairroDto.codigoMunicipio());
         var bairro = new Bairro(bairroDto, municipio);
         bairroService.assertUniqueness(bairro.getMunicipio(), bairro.getNome());
 
@@ -89,15 +80,8 @@ public class BairroController {
     @PutMapping
     @Transactional
     public ResponseEntity<List<BairroResponse>> update(@Valid @RequestBody BairroUpdateDto bairroUpdateDto) {
-        var codigoBairro = bairroUpdateDto.codigoBairro();
-        var codigoMunicipio = bairroUpdateDto.codigoMunicipio();
-
-        var bairro = bairroService.getByCodigoBairro(codigoBairro)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"bairro", codigoBairro}, LOCALE_PT_BR)));
-
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
-
+        var bairro = bairroService.getByCodigoBairro(bairroUpdateDto.codigoBairro());
+        var municipio = municipioService.getByCodigoMunicipio(bairroUpdateDto.codigoMunicipio());
         bairroService.assertUpdatable(bairro, bairroUpdateDto);
 
         try {

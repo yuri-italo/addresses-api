@@ -68,10 +68,7 @@ public class EnderecoService {
     public List<Endereco> toEntityList(PessoaDto pessoaDto, Pessoa pessoa) {
         return pessoaDto.enderecos().stream().map(enderecoDto -> {
             Long codigoBairro = enderecoDto.codigoBairro();
-            Bairro bairro = bairroService.getByCodigoBairro(codigoBairro)
-                    .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                                    new Object[]{"bairro", codigoBairro}, LOCALE_PT_BR)));
-
+            Bairro bairro = bairroService.getByCodigoBairro(codigoBairro);
             return new Endereco(pessoa, bairro, enderecoDto);
         }).toList();
     }
@@ -88,9 +85,7 @@ public class EnderecoService {
                             "error.entity.not.exists", new Object[]{"endereço", codigoEndereco}, LOCALE_PT_BR)));
             }
 
-            var bairro = bairroService.getByCodigoBairro(codigoBairro)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(
-                        "error.entity.not.exists", new Object[]{"bairro", codigoBairro}, LOCALE_PT_BR)));
+            var bairro = bairroService.getByCodigoBairro(codigoBairro);
 
             var pessoa = pessoaService.getByCodigoPessoa(codigoPessoa)
                 .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(
