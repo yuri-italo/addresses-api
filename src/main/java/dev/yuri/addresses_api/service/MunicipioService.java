@@ -5,6 +5,7 @@ import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.entity.UF;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
+import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.MunicipioRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -56,8 +57,10 @@ public class MunicipioService {
         }
     }
 
-    public Optional<Municipio> getByCodigoMunicipio(Long codigoMunicipio) {
-      return   municipioRepository.findById(codigoMunicipio);
+    public Municipio getByCodigoMunicipio(Long codigoMunicipio) {
+      return municipioRepository.findById(codigoMunicipio)
+              .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+              new Object[]{"município", codigoMunicipio}, MunicipioController.LOCALE_PT_BR)));
     }
 
     public void assertUpdatable(Municipio municipio, MunicipioUpdateDto municipioUpdateDto) {

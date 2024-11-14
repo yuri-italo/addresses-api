@@ -73,9 +73,7 @@ public class UFController {
     @PutMapping
     @Transactional
     public ResponseEntity<List<UF>> update(@RequestBody @Valid UFUpdateDto uFUpdateDto) {
-        var codigo = uFUpdateDto.codigoUF();
-        var uF = uFService.getByCodigoUF(codigo);
-
+        var uF = uFService.getByCodigoUF(uFUpdateDto.codigoUF());
         uFService.assertUpdatable(uF, uFUpdateDto);
 
         try {

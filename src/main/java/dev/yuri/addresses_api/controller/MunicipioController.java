@@ -4,9 +4,7 @@ import dev.yuri.addresses_api.dto.request.MunicipioDto;
 import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.dto.response.MunicipioResponse;
 import dev.yuri.addresses_api.entity.Municipio;
-import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
-import dev.yuri.addresses_api.exception.InvalidFilterException;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.service.UFService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
@@ -42,16 +40,10 @@ public class MunicipioController {
             @RequestParam(required = false) Integer status,
             @RequestParam Map<String, String> allFilters
     ) {
-        var invalidFilters = ControllerUtil.getInvalidFilters(EXPECTED_FILTERS, allFilters);
-        if (!invalidFilters.isEmpty()) {
-            throw new InvalidFilterException(
-                    messageSource.getMessage("error.invalid.filters", new Object[]{invalidFilters}, LOCALE_PT_BR)
-            );
-        }
+        ControllerUtil.validateFilters(EXPECTED_FILTERS, allFilters, messageSource);
 
         if (ControllerUtil.isFiltersApplied(codigoMunicipio)) {
-            Optional<Municipio> elementByFilters = municipioService.findElementByFilters(
-                codigoMunicipio, codigoUF, nome, status);
+            Optional<Municipio> elementByFilters = municipioService.findElementByFilters(codigoMunicipio, codigoUF, nome, status);
             if (elementByFilters.isPresent()) {
                 return ResponseEntity.ok(new MunicipioResponse(elementByFilters.get()));
             } else {
@@ -70,10 +62,7 @@ public class MunicipioController {
     @PostMapping
     @Transactional
     public ResponseEntity<List<MunicipioResponse>> save(@Valid @RequestBody MunicipioDto municipioDto) {
-        var codigoUF = municipioDto.codigoUF();
-        var uF = uFService.getByCodigoUF(codigoUF);
-
-        var municipio = new Municipio(municipioDto, uF);
+        var municipio = new Municipio(municipioDto, uFService.getByCodigoUF(municipioDto.codigoUF()));
         municipioService.assertUniqueness(municipio.getUf(), municipio.getNome());
 
         try {
@@ -89,15 +78,8 @@ public class MunicipioController {
     @PutMapping
     @Transactional
     public ResponseEntity<List<MunicipioResponse>> update(@Valid @RequestBody MunicipioUpdateDto municipioUpdateDto) {
-        var codigoMunicipio = municipioUpdateDto.codigoMunicipio();
-        var codigoUF = municipioUpdateDto.codigoUF();
-
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
-
-        var uF = uFService.getByCodigoUF(codigoUF);
-
+        var municipio = municipioService.getByCodigoMunicipio(municipioUpdateDto.codigoMunicipio());
+        var uF = uFService.getByCodigoUF(municipioUpdateDto.codigoUF());
         municipioService.assertUpdatable(municipio, municipioUpdateDto);
 
         try {
@@ -110,7 +92,6 @@ public class MunicipioController {
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"município"}, LOCALE_PT_BR)
             );
         }
-
     }
 }
 

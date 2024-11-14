@@ -5,15 +5,12 @@ import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityAlreadyExistsException;
-import dev.yuri.addresses_api.exception.EntityNotFoundException;
 import dev.yuri.addresses_api.repository.BairroRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
-import static dev.yuri.addresses_api.controller.MunicipioController.LOCALE_PT_BR;
 
 @Service
 public class BairroService {
@@ -35,10 +32,7 @@ public class BairroService {
     public List<Bairro> findElementsByAppliedFilters(Long codigoMunicipio, String nome, Integer status) {
         Municipio municipio = null;
         if (codigoMunicipio != null) {
-            municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
-                    .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(
-                            "error.entity.not.exists", new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR))
-            );
+            municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
         }
 
         return bairroRepository.getElementsByAppliedFields(municipio, nome, status);
@@ -73,9 +67,7 @@ public class BairroService {
         }
 
         var codigoMunicipio = bairroUpdateDto.codigoMunicipio();
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
 
         this.assertUniqueness(municipio, bairroUpdateDto.nome());
     }

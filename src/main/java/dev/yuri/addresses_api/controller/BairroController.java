@@ -71,9 +71,7 @@ public class BairroController {
     @Transactional
     public ResponseEntity<List<BairroResponse>> save(@Valid @RequestBody BairroDto bairroDto) {
         var codigoMunicipio = bairroDto.codigoMunicipio();
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
 
         var bairro = new Bairro(bairroDto, municipio);
         bairroService.assertUniqueness(bairro.getMunicipio(), bairro.getNome());
@@ -98,9 +96,7 @@ public class BairroController {
                 .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
                         new Object[]{"bairro", codigoBairro}, LOCALE_PT_BR)));
 
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"município", codigoMunicipio}, LOCALE_PT_BR)));
+        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
 
         bairroService.assertUpdatable(bairro, bairroUpdateDto);
 
