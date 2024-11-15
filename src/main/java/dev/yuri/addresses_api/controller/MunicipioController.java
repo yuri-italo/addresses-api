@@ -52,7 +52,7 @@ public class MunicipioController {
         }
 
         if (ControllerUtil.isFiltersApplied(codigoUF, nome, status)) {
-            var elementsByAppliedFilters = municipioService.findElementsByAppliedFilters(codigoUF, nome, status);
+            var elementsByAppliedFilters = municipioService.getElementsByAppliedFilters(codigoUF, nome, status);
             return ResponseEntity.ok(MunicipioResponse.fromEntities(elementsByAppliedFilters));
         }
 

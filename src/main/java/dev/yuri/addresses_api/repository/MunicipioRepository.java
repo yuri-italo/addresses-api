@@ -2,8 +2,6 @@ package dev.yuri.addresses_api.repository;
 
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.entity.UF;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,18 +15,18 @@ public interface MunicipioRepository extends JpaRepository<Municipio, Long> {
             "AND (:codigoUF IS NULL OR m.uf.codigoUF = :codigoUF) " +
             "AND (:nome IS NULL OR LOWER(m.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR m.status = :status)")
-    Optional<Municipio> getElementByFilters(@Param("codigoMunicipio") Long codigoMunicipio,
-                                            @Param("codigoUF") Long codigoUF,
-                                            @Param("nome") String nome,
-                                            @Param("status") Integer status);
+    Optional<Municipio> findElementByCodigoMunicipioOrNomeOrStatus(@Param("codigoMunicipio") Long codigoMunicipio,
+                                                                   @Param("codigoUF") Long codigoUF,
+                                                                   @Param("nome") String nome,
+                                                                   @Param("status") Integer status);
 
     @Query("SELECT m FROM Municipio m " +
             "WHERE (:uF IS NULL OR m.uf = :uF) " +
             "AND (:nome IS NULL OR LOWER(m.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR m.status = :status)")
-    List<Municipio> getElementsByAppliedFields(@Param("uF") UF uF,
-                                               @Param("nome") String nome,
-                                               @Param("status") Integer status);
+    List<Municipio> getElementsByUFOrNomeOrStatus(@Param("uF") UF uF,
+                                                  @Param("nome") String nome,
+                                                  @Param("status") Integer status);
 
     Optional<Municipio> findByUfAndNome(UF uf, String nome);
 }

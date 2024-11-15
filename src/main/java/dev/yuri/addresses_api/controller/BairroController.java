@@ -53,7 +53,7 @@ public class BairroController {
         }
 
         if (ControllerUtil.isFiltersApplied(codigoMunicipio, nome, status)) {
-            var elementsByAppliedFilters = bairroService.findElementsByAppliedFilters(codigoMunicipio, nome, status);
+            var elementsByAppliedFilters = bairroService.getElementsByAppliedFilters(codigoMunicipio, nome, status);
             return ResponseEntity.ok(BairroResponse.fromEntities(elementsByAppliedFilters));
         }
 

@@ -14,14 +14,14 @@ public interface UFRepository extends JpaRepository<UF, Long> {
             "AND (:sigla IS NULL OR u.sigla = :sigla) " +
             "AND (:nome IS NULL OR LOWER(u.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR u.status = :status)")
-    Optional<UF> getElementByFilters(@Param("codigoUF") Long codigoUF,
-                               @Param("sigla") String sigla,
-                               @Param("nome") String nome,
-                               @Param("status") Integer status);
+    Optional<UF> findElementByCodigoUFOrSiglaOrNomeOrStatus(@Param("codigoUF") Long codigoUF,
+                                                            @Param("sigla") String sigla,
+                                                            @Param("nome") String nome,
+                                                            @Param("status") Integer status);
 
-    List<UF> findByStatus(Integer status);
+    List<UF> getByStatus(Integer status);
 
-    boolean existsByNome(String nome);
+    Optional<UF> findByNome(String nome);
 
-    boolean existsBySigla(String sigla);
+    Optional<UF> findBySigla(String sigla);
 }

@@ -20,18 +20,38 @@ public class PessoaService {
     private final EnderecoService enderecoService;
     private final MessageSource messageSource;
 
-    public PessoaService(PessoaRepository pessoaRepository, EnderecoService enderecoService, MessageSource messageSource) {
+    public PessoaService(PessoaRepository pessoaRepository,
+                         EnderecoService enderecoService, MessageSource messageSource) {
         this.pessoaRepository = pessoaRepository;
         this.enderecoService = enderecoService;
         this.messageSource = messageSource;
     }
 
-    public Optional<Pessoa> findElementByFilters(Long codigoPessoa, String login, Integer status) {
-        return pessoaRepository.getElementByFilters(codigoPessoa, login, status);
+    public Pessoa save(Pessoa pessoa) {
+        return pessoaRepository.save(pessoa);
     }
 
-    public List<Pessoa> findElementsByAppliedFilters(String login, Integer status) {
-        return pessoaRepository.getElementsByAppliedFields(login, status);
+    public Pessoa save(PessoaDto pessoaDto) {
+        this.assertUniqueness(pessoaDto.login());
+        return this.save(new Pessoa(pessoaDto));
+    }
+
+    public Pessoa getByCodigoPessoa(Long codigoPessoa) {
+        return pessoaRepository.findById(codigoPessoa)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"pessoa", codigoPessoa}, PessoaController.LOCALE_PT_BR)));
+    }
+
+    public Optional<Pessoa> findByLogin(String login) {
+        return pessoaRepository.findByLogin(login);
+    }
+
+    public Optional<Pessoa> findElementByFilters(Long codigoPessoa, String login, Integer status) {
+        return pessoaRepository.findElementByCodigoPessoaOrLoginOrStatus(codigoPessoa, login, status);
+    }
+
+    public List<Pessoa> getElementsByAppliedFilters(String login, Integer status) {
+        return pessoaRepository.getElementsByLoginOrStatus(login, status);
     }
 
     public List<Pessoa> findAll() {
@@ -39,33 +59,15 @@ public class PessoaService {
     }
 
     public List<Endereco> getEnderecosByPessoa(Pessoa pessoa) {
-        return enderecoService.findByPessoa(pessoa);
+        return enderecoService.getAllByPessoa(pessoa);
     }
 
     public void assertUniqueness(String login) {
-        var optionalPessoa = pessoaRepository.findByLogin(login);
-
-        if (optionalPessoa.isPresent()) {
-            throw new EntityAlreadyExistsException(
-                    messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"pessoa", "login", login}, PessoaController.LOCALE_PT_BR)
-            );
-        }
-    }
-
-    public Pessoa save(PessoaDto pessoaDto) {
-        this.assertUniqueness(pessoaDto.login());
-        return pessoaRepository.save(new Pessoa(pessoaDto));
-    }
-
-    public Pessoa save(Pessoa pessoa) {
-        return pessoaRepository.save(pessoa);
-    }
-
-    public Pessoa getByCodigoPessoa(Long codigoPessoa) {
-        return pessoaRepository.findById(codigoPessoa)
-                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
-                        new Object[]{"pessoa", codigoPessoa}, PessoaController.LOCALE_PT_BR)));
+        this.findByLogin(login)
+                .ifPresent(pessoa -> {
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"pessoa", "login", login}, PessoaController.LOCALE_PT_BR));
+                });
     }
 
     public void assertUpdatable(Pessoa pessoa, PessoaUpdateDto pessoaUpdateDto) {

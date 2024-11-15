@@ -26,16 +26,25 @@ public class MunicipioService {
     }
 
     public Optional<Municipio> findElementByFilters(Long codigoMunicipio, Long codigoUF, String nome, Integer status) {
-        return municipioRepository.getElementByFilters(codigoMunicipio,codigoUF, nome, status);
+        return municipioRepository.findElementByCodigoMunicipioOrNomeOrStatus(
+                codigoMunicipio,codigoUF, nome, status);
     }
 
-    public List<Municipio> findElementsByAppliedFilters(Long codigoUF, String nome, Integer status) {
+    public Optional<Municipio> findByUfAndNome(UF uF, String nome) {
+        return municipioRepository.findByUfAndNome(uF, nome);
+    }
+
+    public List<Municipio> getElementsByUFOrNomeOrStatus(UF uF, String nome, Integer status) {
+        return municipioRepository.getElementsByUFOrNomeOrStatus(uF, nome, status);
+    }
+
+    public List<Municipio> getElementsByAppliedFilters(Long codigoUF, String nome, Integer status) {
         UF uF = null;
         if (codigoUF != null) {
             uF = uFService.getByCodigoUF(codigoUF);
         }
 
-        return municipioRepository.getElementsByAppliedFields(uF, nome, status);
+        return this.getElementsByUFOrNomeOrStatus(uF, nome, status);
     }
 
     public List<Municipio> findAll() {
@@ -47,14 +56,11 @@ public class MunicipioService {
     }
 
     public void assertUniqueness(UF uf, String nome) {
-        var optionalMunicipio = municipioRepository.findByUfAndNome(uf, nome);
-
-        if (optionalMunicipio.isPresent()) {
-            throw new EntityAlreadyExistsException(
-                    messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"município", "nome", nome}, MunicipioController.LOCALE_PT_BR)
-            );
-        }
+        this.findByUfAndNome(uf, nome)
+                .ifPresent(municipio -> {
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
+                        new Object[]{"município", "nome", nome}, MunicipioController.LOCALE_PT_BR));
+                });
     }
 
     public Municipio getByCodigoMunicipio(Long codigoMunicipio) {

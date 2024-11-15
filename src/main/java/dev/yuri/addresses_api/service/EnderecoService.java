@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static dev.yuri.addresses_api.controller.PessoaController.LOCALE_PT_BR;
@@ -26,11 +25,16 @@ public class EnderecoService {
     private final PessoaService pessoaService;
     private final MessageSource messageSource;
 
-    public EnderecoService(EnderecoRepository enderecoRepository, BairroService bairroService, @Lazy PessoaService pessoaService, MessageSource messageSource) {
+    public EnderecoService(EnderecoRepository enderecoRepository,
+                           BairroService bairroService, @Lazy PessoaService pessoaService,
+                           MessageSource messageSource) {
         this.enderecoRepository = enderecoRepository;
         this.bairroService = bairroService;
         this.pessoaService = pessoaService;
         this.messageSource = messageSource;
+    }
+    public void save(Endereco endereco) {
+        enderecoRepository.save(endereco);
     }
 
     public void saveAll(List<Endereco> enderecos) {
@@ -38,56 +42,53 @@ public class EnderecoService {
     }
 
     public void saveAll(List<Endereco> enderecoList, Pessoa pessoa) {
-        var addressesToDelete = enderecoRepository.findAllByPessoa(pessoa);
+        var addressesToDelete = this.getAllByPessoa(pessoa);
 
         enderecoList.forEach(endereco -> {
             if (endereco.getCodigoEndereco() == null) {
-                enderecoRepository.save(endereco);
+                this.save(endereco);
             } else {
-                var codigoEndereco = endereco.getCodigoEndereco();
-                var target = enderecoRepository.findById(codigoEndereco)
-                        .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(
-                                "error.entity.not.exists", new Object[]{"endereço", codigoEndereco}, LOCALE_PT_BR)));
+                var target = this.getByCodigoEndereco(endereco.getCodigoEndereco());
 
                 BeanUtils.copyProperties(endereco, target);
-                enderecoRepository.save(target);
+                this.save(target);
                 addressesToDelete.remove(endereco);
             }
         });
-        addressesToDelete.forEach(enderecoRepository::delete);
+        addressesToDelete.forEach(this::delete);
     }
 
-    public Optional<Endereco> getByCodigoEndereco(Long codigoEndereco) {
-        return enderecoRepository.findById(codigoEndereco);
+    public List<Endereco> getAllByPessoa(Pessoa pessoa) {
+        return enderecoRepository.getAllByPessoa(pessoa);
     }
 
-    public List<Endereco> findByPessoa(Pessoa pessoa) {
-        return enderecoRepository.findByPessoa(pessoa);
+    public Endereco getByCodigoEndereco(Long codigoEndereco) {
+        return enderecoRepository.findById(codigoEndereco)
+                .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage("error.entity.not.exists",
+                        new Object[]{"endereço", codigoEndereco}, LOCALE_PT_BR)));
     }
 
     public List<Endereco> toEntityList(PessoaDto pessoaDto, Pessoa pessoa) {
         return pessoaDto.enderecos().stream().map(enderecoDto -> {
-            Long codigoBairro = enderecoDto.codigoBairro();
-            Bairro bairro = bairroService.getByCodigoBairro(codigoBairro);
+            Bairro bairro = bairroService.getByCodigoBairro(enderecoDto.codigoBairro());
             return new Endereco(pessoa, bairro, enderecoDto);
         }).toList();
+    }
+
+    public void delete(Endereco endereco) {
+        enderecoRepository.delete(endereco);
     }
 
     public List<Endereco> toEntityList(List<EnderecoUpdateDto> enderecoUpdateDtos) {
         return enderecoUpdateDtos.stream().map(enderecoUpdateDto -> {
             var codigoEndereco = enderecoUpdateDto.codigoEndereco();
-            var codigoBairro = enderecoUpdateDto.codigoBairro();
-            var codigoPessoa = enderecoUpdateDto.codigoPessoa();
 
             if (codigoEndereco != null) {
-                this.getByCodigoEndereco(codigoEndereco)
-                    .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(
-                            "error.entity.not.exists", new Object[]{"endereço", codigoEndereco}, LOCALE_PT_BR)));
+                this.getByCodigoEndereco(codigoEndereco);
             }
 
-            var bairro = bairroService.getByCodigoBairro(codigoBairro);
-
-            var pessoa = pessoaService.getByCodigoPessoa(codigoPessoa);
+            var bairro = bairroService.getByCodigoBairro(enderecoUpdateDto.codigoBairro());
+            var pessoa = pessoaService.getByCodigoPessoa(enderecoUpdateDto.codigoPessoa());
 
             return new Endereco(enderecoUpdateDto, pessoa, bairro);
         }).collect(Collectors.toList());
@@ -106,7 +107,7 @@ public class EnderecoService {
                             }, LOCALE_PT_BR));
                 });
 
-        List<Endereco> allByPessoa = enderecoRepository.findAllByPessoa(expectedOwner);
+        List<Endereco> allByPessoa = this.getAllByPessoa(expectedOwner);
 
         enderecos.forEach(endereco -> {
             if (endereco.getCodigoEndereco() != null) {

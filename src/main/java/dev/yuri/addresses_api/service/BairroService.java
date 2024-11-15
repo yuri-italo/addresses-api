@@ -25,18 +25,26 @@ public class BairroService {
         this.messageSource = messageSource;
     }
 
-
-    public Optional<Bairro> findElementByFilters(Long codigoBairro, Long codigoMunicipio, String nome, Integer status) {
-        return bairroRepository.getElementByFilters(codigoBairro, codigoMunicipio, nome, status);
+    public Optional<Bairro> findByMunicipioAndNome(Municipio municipio, String nome) {
+        return bairroRepository.findByMunicipioAndNome(municipio, nome);
     }
 
-    public List<Bairro> findElementsByAppliedFilters(Long codigoMunicipio, String nome, Integer status) {
+    public Optional<Bairro> findElementByFilters(Long codigoBairro, Long codigoMunicipio, String nome, Integer status) {
+        return bairroRepository.findElementByCodigoBairroOrCodigoMunicipioOrNomeOrStatus(
+                codigoBairro, codigoMunicipio, nome, status);
+    }
+
+    public List<Bairro> getElementsByAppliedFilters(Long codigoMunicipio, String nome, Integer status) {
         Municipio municipio = null;
         if (codigoMunicipio != null) {
             municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
         }
 
-        return bairroRepository.getElementsByAppliedFields(municipio, nome, status);
+        return this.getElementsByMunicipioOrNomeOrStatus(municipio, nome, status);
+    }
+
+    public List<Bairro> getElementsByMunicipioOrNomeOrStatus(Municipio municipio, String nome, Integer status) {
+        return bairroRepository.getElementsByMunicipioOrNomeOrStatus(municipio, nome, status);
     }
 
     public List<Bairro> findAll() {
@@ -44,14 +52,11 @@ public class BairroService {
     }
 
     public void assertUniqueness(Municipio municipio, String nome) {
-        var optionalBairro = bairroRepository.findByMunicipioAndNome(municipio, nome);
-
-        if (optionalBairro.isPresent()) {
-            throw new EntityAlreadyExistsException(
-                    messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"bairro", "nome", nome}, BairroController.LOCALE_PT_BR)
-            );
-        }
+        this.findByMunicipioAndNome(municipio, nome)
+            .ifPresent(bairro -> {
+                throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
+                  new Object[]{"bairro", "nome", nome}, BairroController.LOCALE_PT_BR));
+            });
     }
 
     public void save(Bairro bairro) {
@@ -69,9 +74,7 @@ public class BairroService {
             return;
         }
 
-        var codigoMunicipio = bairroUpdateDto.codigoMunicipio();
-        var municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
-
+        var municipio = municipioService.getByCodigoMunicipio(bairroUpdateDto.codigoMunicipio());
         this.assertUniqueness(municipio, bairroUpdateDto.nome());
     }
 

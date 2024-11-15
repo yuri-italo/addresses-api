@@ -54,7 +54,7 @@ public class PessoaController {
         }
 
         if (ControllerUtil.isFiltersApplied(login, status)) {
-            var elementsByAppliedFilters = pessoaService.findElementsByAppliedFilters(login, status);
+            var elementsByAppliedFilters = pessoaService.getElementsByAppliedFilters(login, status);
             return ResponseEntity.ok(PessoaResponse.fromEntities(elementsByAppliedFilters));
         }
 

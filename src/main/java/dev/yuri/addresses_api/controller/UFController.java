@@ -48,7 +48,7 @@ public class UFController {
         }
 
         if (status != null) {
-            return ResponseEntity.ok(uFService.findElementsByStatus(status));
+            return ResponseEntity.ok(uFService.getElementsByStatus(status));
         }
 
         return ResponseEntity.ok(uFService.findAll());

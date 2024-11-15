@@ -28,12 +28,20 @@ public class UFService {
         return uFRepository.findAll();
     }
 
-    public Optional<UF> findElementByFilters(Long codigoUF, String sigla, String nome, Integer status) {
-        return uFRepository.getElementByFilters(codigoUF, sigla, nome, status);
+    Optional<UF> findByNome(String nome) {
+        return uFRepository.findByNome(nome);
     }
 
-    public List<UF> findElementsByStatus(Integer status) {
-        return uFRepository.findByStatus(status);
+    Optional<UF> findBySigla(String sigla) {
+        return uFRepository.findBySigla(sigla);
+    }
+
+    public Optional<UF> findElementByFilters(Long codigoUF, String sigla, String nome, Integer status) {
+        return uFRepository.findElementByCodigoUFOrSiglaOrNomeOrStatus(codigoUF, sigla, nome, status);
+    }
+
+    public List<UF> getElementsByStatus(Integer status) {
+        return uFRepository.getByStatus(status);
     }
 
     public void save(UF uf) {
@@ -67,20 +75,18 @@ public class UFService {
     }
 
     private void assertUniquenessBySigla(String sigla) {
-        if (uFRepository.existsBySigla(sigla)) {
-            throw new EntityAlreadyExistsException(
-                    messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"UF", "sigla", sigla}, LOCALE_PT_BR)
-            );
-        }
+        this.findBySigla(sigla)
+                .ifPresent(uf -> {
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"UF", "sigla", sigla}, LOCALE_PT_BR));
+                });
     }
 
     private void assertUniquenessByNome(String nome) {
-        if (uFRepository.existsByNome(nome)) {
-            throw new EntityAlreadyExistsException(
-                    messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"UF", "nome", nome}, LOCALE_PT_BR)
-            );
-        }
+        this.findByNome(nome)
+                .ifPresent(uf -> {
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
+                            new Object[]{"UF", "nome", nome}, LOCALE_PT_BR));
+                });
     }
 }
