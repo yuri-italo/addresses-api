@@ -5,6 +5,7 @@ import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
 import dev.yuri.addresses_api.dto.response.MunicipioResponse;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
+import dev.yuri.addresses_api.mapper.MunicipioMapper;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.service.UFService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
@@ -45,7 +46,7 @@ public class MunicipioController {
         if (ControllerUtil.isFiltersApplied(codigoMunicipio)) {
             Optional<Municipio> elementByFilters = municipioService.findElementByFilters(codigoMunicipio, codigoUF, nome, status);
             if (elementByFilters.isPresent()) {
-                return ResponseEntity.ok(new MunicipioResponse(elementByFilters.get()));
+                return ResponseEntity.ok(MunicipioMapper.toResponse(elementByFilters.get()));
             } else {
                 return ResponseEntity.ok(Collections.emptyList());
             }
@@ -53,10 +54,10 @@ public class MunicipioController {
 
         if (ControllerUtil.isFiltersApplied(codigoUF, nome, status)) {
             var elementsByAppliedFilters = municipioService.getElementsByAppliedFilters(codigoUF, nome, status);
-            return ResponseEntity.ok(MunicipioResponse.fromEntities(elementsByAppliedFilters));
+            return ResponseEntity.ok(MunicipioMapper.toResponseList((elementsByAppliedFilters)));
         }
 
-        return ResponseEntity.ok(MunicipioResponse.fromEntities(municipioService.findAll()));
+        return ResponseEntity.ok(MunicipioMapper.toResponseList(municipioService.findAll()));
     }
 
     @PostMapping
@@ -67,7 +68,7 @@ public class MunicipioController {
 
         try {
             municipioService.save(municipio);
-            return ResponseEntity.ok(MunicipioResponse.fromEntities(municipioService.findAll()));
+            return ResponseEntity.ok(MunicipioMapper.toResponseList(municipioService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"município"}, LOCALE_PT_BR)
@@ -86,7 +87,7 @@ public class MunicipioController {
             BeanUtils.copyProperties(municipioUpdateDto, municipio);
             municipio.setUf(uF);
             municipioService.save(municipio);
-            return ResponseEntity.ok(MunicipioResponse.fromEntities(municipioService.findAll()));
+            return ResponseEntity.ok(MunicipioMapper.toResponseList(municipioService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"município"}, LOCALE_PT_BR)

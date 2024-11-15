@@ -6,6 +6,7 @@ import dev.yuri.addresses_api.dto.response.PessoaResponse;
 import dev.yuri.addresses_api.entity.Endereco;
 import dev.yuri.addresses_api.entity.Pessoa;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
+import dev.yuri.addresses_api.mapper.PessoaMapper;
 import dev.yuri.addresses_api.service.EnderecoService;
 import dev.yuri.addresses_api.service.PessoaService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
@@ -47,7 +48,7 @@ public class PessoaController {
             if (elementByFilters.isPresent()) {
                 var pessoa = elementByFilters.get();
                 var enderecos = pessoaService.getEnderecosByPessoa(pessoa);
-                return ResponseEntity.ok(new PessoaResponse(pessoa, enderecos));
+                return ResponseEntity.ok(PessoaMapper.toResponse(pessoa, enderecos));
             } else {
                 return ResponseEntity.ok(Collections.emptyList());
             }
@@ -55,10 +56,10 @@ public class PessoaController {
 
         if (ControllerUtil.isFiltersApplied(login, status)) {
             var elementsByAppliedFilters = pessoaService.getElementsByAppliedFilters(login, status);
-            return ResponseEntity.ok(PessoaResponse.fromEntities(elementsByAppliedFilters));
+            return ResponseEntity.ok(PessoaMapper.toResponseList(elementsByAppliedFilters));
         }
 
-        return ResponseEntity.ok(PessoaResponse.fromEntities(pessoaService.findAll()));
+        return ResponseEntity.ok(PessoaMapper.toResponseList(pessoaService.findAll()));
     }
 
     @PostMapping
@@ -69,7 +70,7 @@ public class PessoaController {
 
         try {
             enderecoService.saveAll(enderecos);
-            return ResponseEntity.ok(PessoaResponse.fromEntities(pessoaService.findAll()));
+            return ResponseEntity.ok(PessoaMapper.toResponseList(pessoaService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"pessoa"}, LOCALE_PT_BR)
@@ -97,7 +98,7 @@ public class PessoaController {
 
         try {
             enderecoService.saveAll(enderecoList, pessoa);
-            return ResponseEntity.ok(PessoaResponse.fromEntities(pessoaService.findAll()));
+            return ResponseEntity.ok(PessoaMapper.toResponseList(pessoaService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"endereco"}, LOCALE_PT_BR)

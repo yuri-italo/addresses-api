@@ -5,6 +5,7 @@ import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
 import dev.yuri.addresses_api.dto.response.BairroResponse;
 import dev.yuri.addresses_api.entity.Bairro;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
+import dev.yuri.addresses_api.mapper.BairroMapper;
 import dev.yuri.addresses_api.service.BairroService;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
@@ -46,7 +47,7 @@ public class BairroController {
             Optional<Bairro> elementByFilters = bairroService.findElementByFilters(
                     codigoBairro, codigoMunicipio, nome, status);
             if (elementByFilters.isPresent()) {
-                return ResponseEntity.ok(new BairroResponse(elementByFilters.get()));
+                return ResponseEntity.ok(BairroMapper.toResponse(elementByFilters.get()));
             } else {
                 return ResponseEntity.ok(Collections.emptyList());
             }
@@ -54,10 +55,10 @@ public class BairroController {
 
         if (ControllerUtil.isFiltersApplied(codigoMunicipio, nome, status)) {
             var elementsByAppliedFilters = bairroService.getElementsByAppliedFilters(codigoMunicipio, nome, status);
-            return ResponseEntity.ok(BairroResponse.fromEntities(elementsByAppliedFilters));
+            return ResponseEntity.ok(BairroMapper.toResponseList(elementsByAppliedFilters));
         }
 
-        return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
+        return ResponseEntity.ok(BairroMapper.toResponseList(bairroService.findAll()));
     }
 
     @PostMapping
@@ -69,7 +70,7 @@ public class BairroController {
 
         try {
             bairroService.save(bairro);
-            return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
+            return ResponseEntity.ok(BairroMapper.toResponseList(bairroService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"bairro"}, LOCALE_PT_BR)
@@ -88,7 +89,7 @@ public class BairroController {
             BeanUtils.copyProperties(bairroUpdateDto, bairro);
             bairro.setMunicipio(municipio);
             bairroService.save(bairro);
-            return ResponseEntity.ok(BairroResponse.fromEntities(bairroService.findAll()));
+            return ResponseEntity.ok(BairroMapper.toResponseList(bairroService.findAll()));
         } catch (Exception e) {
             throw new EntityNotSavedException(
                     messageSource.getMessage("error.entity.not.saved", new Object[]{"bairro"}, LOCALE_PT_BR)

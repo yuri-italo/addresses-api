@@ -1,6 +1,6 @@
 package dev.yuri.addresses_api.exception;
 
-import dev.yuri.addresses_api.dto.response.ErrorResponse;
+import dev.yuri.addresses_api.mapper.ErrorMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
         return ResponseEntity.status(400)
-            .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+            .body(ErrorMapper.toResponse(HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.toString(),
                 "Erro na leitura dos dados da requisição. Verifique o formato e os valores informados.",
                 request.getRequestURI()));
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidFilterException.class)
     public ResponseEntity<?> handleInvalidFiler(InvalidFilterException ex, HttpServletRequest request) {
         return ResponseEntity.status(400)
-            .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+            .body(ErrorMapper.toResponse(HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.toString(),
                 ex.getMessage(),
                 request.getRequestURI()));
@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AddressDoesNotBelongToPersonException.class)
     public ResponseEntity<?> AddressDoesNotBelongToPersonFiler(AddressDoesNotBelongToPersonException ex, HttpServletRequest request) {
         return ResponseEntity.status(400)
-            .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+            .body(ErrorMapper.toResponse(HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.toString(),
                 ex.getMessage(),
                 request.getRequestURI()));
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
         return ResponseEntity.status(404)
-            .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(),
+            .body(ErrorMapper.toResponse(HttpStatus.NOT_FOUND.value(),
                 HttpStatus.NOT_FOUND.toString(),
                 ex.getMessage(),
                 request.getRequestURI()));
@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotSavedException.class)
     public ResponseEntity<?> handleEntityNotSaved(EntityNotSavedException ex, HttpServletRequest request) {
         return ResponseEntity.status(500)
-            .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            .body(ErrorMapper.toResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 ex.getMessage(),
                 request.getRequestURI()));
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<?> handleEntityAlreadyExists(EntityAlreadyExistsException ex, HttpServletRequest request) {
         return ResponseEntity.status(409)
-            .body(new ErrorResponse(HttpStatus.CONFLICT.value(),
+            .body(ErrorMapper.toResponse(HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.toString(),
                 ex.getMessage(),
                 request.getRequestURI()));
