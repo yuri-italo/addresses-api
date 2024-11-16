@@ -65,8 +65,8 @@ public class UFService {
     }
 
     private boolean hasSameAttributes(UF uf, UFUpdateDto ufUpdateDto) {
-        return uf.getNome().equals(ufUpdateDto.nome()) &&
-                uf.getSigla().equals(ufUpdateDto.sigla());
+        return uf.getNome().equalsIgnoreCase(ufUpdateDto.nome()) &&
+                uf.getSigla().equalsIgnoreCase(ufUpdateDto.sigla());
     }
 
     public void assertUniqueness(UF uf) {

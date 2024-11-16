@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface UFRepository extends JpaRepository<UF, Long> {
     @Query("SELECT u FROM UF u " +
             "WHERE (:codigoUF IS NULL OR u.codigoUF = :codigoUF) " +
-            "AND (:sigla IS NULL OR u.sigla = :sigla) " +
+            "AND (:sigla IS NULL OR LOWER(u.sigla) LIKE LOWER(CONCAT('%', :sigla, '%'))) " +
             "AND (:nome IS NULL OR LOWER(u.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR u.status = :status)")
     Optional<UF> findElementByCodigoUFOrSiglaOrNomeOrStatus(@Param("codigoUF") Long codigoUF,
@@ -21,7 +21,9 @@ public interface UFRepository extends JpaRepository<UF, Long> {
 
     List<UF> getByStatus(Integer status);
 
-    Optional<UF> findByNome(String nome);
+    @Query("SELECT u FROM UF u WHERE LOWER(u.nome) = LOWER(:nome)")
+    Optional<UF> findByNome(@Param("nome") String nome);
 
-    Optional<UF> findBySigla(String sigla);
+    @Query("SELECT u FROM UF u WHERE LOWER(u.sigla) = LOWER(:sigla)")
+    Optional<UF> findBySigla(@Param("sigla") String sigla);
 }
