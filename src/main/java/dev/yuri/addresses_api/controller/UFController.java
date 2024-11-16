@@ -52,9 +52,15 @@ public class UFController {
                 schema = @Schema(type = "integer", example = "1", description = "Exemplo de status")),
         },
         responses = {
-            @ApiResponse(responseCode = "200", description = "Resposta bem-sucedida", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json"))
+            @ApiResponse(responseCode = "200",
+                description = "Lista de UF ou uma única entidade que corresponde aos filtros.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Filtros inválidos ou mal formatados.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor",
+                content = @Content(mediaType = "application/json"))
         }
     )
     public ResponseEntity<?> findUF(
@@ -92,10 +98,18 @@ public class UFController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UFDto.class))
         ),
         responses = {
-            @ApiResponse(responseCode = "200", description = "Entidade de UF salva com sucesso", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "400", description = "Corpo da requisição inválido", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "409", description = "Dados conflitantes ou recurso já existente", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json"))
+            @ApiResponse(responseCode = "200",
+                description = "Entidade de UF salva com sucesso",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Corpo da requisição inválido",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "409",
+                description = "Dados conflitantes ou recurso já existente",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor",
+                content = @Content(mediaType = "application/json"))
         }
     )
     public ResponseEntity<List<UF>> save(@RequestBody @Valid UFDto uFDto) {
@@ -122,11 +136,21 @@ public class UFController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UFUpdateDto.class))
         ),
         responses = {
-            @ApiResponse(responseCode = "200", description = "Entidade de UF atualizada com sucesso", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "400", description = "Corpo da requisição inválido", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Entidade de UF não encontrada", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "409", description = "Dados conflitantes ou recurso já existente", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json"))
+            @ApiResponse(responseCode = "200",
+                description = "Entidade de UF atualizada com sucesso",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Corpo da requisição inválido",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404",
+                description = "Entidade de UF não encontrada",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "409",
+                description = "Dados conflitantes ou recurso já existente",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor",
+                content = @Content(mediaType = "application/json"))
         }
     )
     public ResponseEntity<List<UF>> update(@RequestBody @Valid UFUpdateDto uFUpdateDto) {

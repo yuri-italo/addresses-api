@@ -82,6 +82,6 @@ public class MunicipioService {
 
     private boolean hasSameAttributes(Municipio municipio, MunicipioUpdateDto municipioUpdateDto) {
         return municipio.getUf().getCodigoUF().equals(municipioUpdateDto.codigoUF()) &&
-                municipio.getNome().equals(municipioUpdateDto.nome());
+                municipio.getNome().equalsIgnoreCase(municipioUpdateDto.nome());
     }
 }

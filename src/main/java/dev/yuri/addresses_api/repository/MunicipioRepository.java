@@ -28,5 +28,8 @@ public interface MunicipioRepository extends JpaRepository<Municipio, Long> {
                                                   @Param("nome") String nome,
                                                   @Param("status") Integer status);
 
-    Optional<Municipio> findByUfAndNome(UF uf, String nome);
+    @Query("SELECT m FROM Municipio m WHERE m.uf = :uf AND LOWER(m.nome) = LOWER(:nome)")
+    Optional<Municipio> findByUfAndNome(@Param("uf") UF uf,
+                                        @Param("nome") String nome);
+
 }
