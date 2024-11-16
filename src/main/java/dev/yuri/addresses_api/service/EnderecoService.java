@@ -95,18 +95,11 @@ public class EnderecoService {
     }
 
     public void assertUpdatable(List<Endereco> enderecos, Pessoa expectedOwner) {
-        enderecos.stream()
-                .filter(endereco -> !this.hasSameOwner(endereco.getPessoa(), expectedOwner))
-                .findFirst()
-                .ifPresent(endereco -> {
-                    throw new AddressDoesNotBelongToPersonException(messageSource.getMessage(
-                            "error.address.does.not.belong.to.person",
-                            new Object[]{
-                                endereco.getCodigoEndereco() != null ? endereco.getCodigoEndereco() : "não informado",
-                                expectedOwner.getCodigoPessoa()
-                            }, LOCALE_PT_BR));
-                });
+        this.assertSameOwner(enderecos, expectedOwner);
+        this.assertAddressesBelongToPerson(enderecos, expectedOwner);
+    }
 
+    private void assertAddressesBelongToPerson(List<Endereco> enderecos, Pessoa expectedOwner) {
         List<Endereco> allByPessoa = this.getAllByPessoa(expectedOwner);
 
         enderecos.forEach(endereco -> {
@@ -118,6 +111,20 @@ public class EnderecoService {
                 }
             }
         });
+    }
+
+    private void assertSameOwner(List<Endereco> enderecos, Pessoa expectedOwner) {
+        enderecos.stream()
+                .filter(endereco -> !this.hasSameOwner(endereco.getPessoa(), expectedOwner))
+                .findFirst()
+                .ifPresent(endereco -> {
+                    throw new AddressDoesNotBelongToPersonException(messageSource.getMessage(
+                            "error.address.does.not.belong.to.person",
+                            new Object[]{
+                                endereco.getCodigoEndereco() != null ? endereco.getCodigoEndereco() : "não informado",
+                                expectedOwner.getCodigoPessoa()
+                            }, LOCALE_PT_BR));
+                });
     }
 
     private boolean hasSameOwner(Pessoa addressOwner, Pessoa expectedOwner) {
