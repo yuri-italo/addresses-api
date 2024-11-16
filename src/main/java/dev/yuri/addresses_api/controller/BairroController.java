@@ -9,6 +9,11 @@ import dev.yuri.addresses_api.mapper.BairroMapper;
 import dev.yuri.addresses_api.service.BairroService;
 import dev.yuri.addresses_api.service.MunicipioService;
 import dev.yuri.addresses_api.utils.ControllerUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -34,12 +39,41 @@ public class BairroController {
     }
 
     @GetMapping
+    @Operation(
+        summary = "Buscar entidades de Bairro",
+        description = "Busca entidades de Bairro com base em filtros opcionais, como código do bairro, código do município, nome e status.",
+        parameters = {
+            @Parameter(name = "codigoBairro",
+                description = "O identificador único do bairro. Exemplo: 123",
+                schema = @Schema(type = "long", example = "4", description = "Exemplo de código Bairro")),
+            @Parameter(name = "codigoMunicipio",
+                description = "O identificador único do município associado. Exemplo: 123",
+                schema = @Schema(type = "long", example = "3", description = "Exemplo de código Município")),
+            @Parameter(name = "nome",
+                description = "O nome do bairro. Exemplo: Pajuçara",
+                schema = @Schema(type = "string", example = "Pajuçara", description = "Exemplo de nome")),
+            @Parameter(name = "status",
+                description = "O status do bairro. Exemplo: 1 para ativo, 2 para inativo.",
+                schema = @Schema(type = "integer", example = "1", description = "Exemplo de status"))
+        },
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Lista de bairros ou uma única entidade que corresponde aos filtros.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Filtros inválidos ou mal formatados.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor.",
+                content = @Content(mediaType = "application/json"))
+        }
+    )
     public ResponseEntity<?> findBairro(
             @RequestParam(required = false) Long codigoBairro,
             @RequestParam(required = false) Long codigoMunicipio,
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) Integer status,
-            @RequestParam Map<String, String> allFilters
+            @RequestParam(required = false) Map<String, String> allFilters
     ) {
         ControllerUtil.validateFilters(EXPECTED_FILTERS, allFilters, messageSource);
 
@@ -63,6 +97,31 @@ public class BairroController {
 
     @PostMapping
     @Transactional
+    @Operation(
+        summary = "Salvar uma nova entidade de Bairro",
+        description = "Cria uma nova entidade de Bairro com os dados fornecidos.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Objeto BairroDto contendo os detalhes do bairro.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BairroDto.class))
+        ),
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Entidade de Bairro salva com sucesso.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Corpo da requisição inválido.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404",
+                description = "Código de Município não encontrado.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "409",
+                description = "Dados conflitantes ou recurso já existente.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor.",
+                content = @Content(mediaType = "application/json"))
+        }
+    )
     public ResponseEntity<List<BairroResponse>> save(@Valid @RequestBody BairroDto bairroDto) {
         var municipio = municipioService.getByCodigoMunicipio(bairroDto.codigoMunicipio());
         var bairro = new Bairro(bairroDto, municipio);
@@ -80,6 +139,31 @@ public class BairroController {
 
     @PutMapping
     @Transactional
+    @Operation(
+        summary = "Atualizar uma entidade de Bairro existente",
+        description = "Atualiza os dados de uma entidade de Bairro existente com base no BairroUpdateDto fornecido.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Objeto BairroUpdateDto contendo os detalhes atualizados.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BairroUpdateDto.class))
+        ),
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Entidade de Bairro atualizada com sucesso.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Corpo da requisição inválido.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404",
+                description = "Entidade de Bairro ou Município não encontrada.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "409",
+                description = "Dados conflitantes ou recurso já existente.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor.",
+                content = @Content(mediaType = "application/json"))
+        }
+    )
     public ResponseEntity<List<BairroResponse>> update(@Valid @RequestBody BairroUpdateDto bairroUpdateDto) {
         var bairro = bairroService.getByCodigoBairro(bairroUpdateDto.codigoBairro());
         var municipio = municipioService.getByCodigoMunicipio(bairroUpdateDto.codigoMunicipio());

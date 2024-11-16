@@ -36,7 +36,7 @@ public class UFController {
     @GetMapping
     @Operation(
         summary = "Buscar entidades de UF",
-        description = "Busca por entidades de UF com base em filtros como codigoUF, sigla, nome e status.",
+        description = "Busca por entidades de UF com base em filtros opcionais como codigoUF, sigla, nome e status.",
         parameters = {
             @Parameter(name = "codigoUF",
                 description = "O identificador único da entidade UF. Exemplo: 123",
@@ -141,9 +141,6 @@ public class UFController {
                 content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "400",
                 description = "Corpo da requisição inválido",
-                content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404",
-                description = "Entidade de UF não encontrada",
                 content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "409",
                 description = "Dados conflitantes ou recurso já existente",

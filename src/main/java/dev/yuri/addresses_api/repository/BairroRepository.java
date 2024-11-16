@@ -28,5 +28,7 @@ public interface BairroRepository extends JpaRepository<Bairro, Long> {
                                                       @Param("nome") String nome,
                                                       @Param("status") Integer status);
 
-    Optional<Bairro> findByMunicipioAndNome(Municipio municipio, String nome);
+    @Query("SELECT b FROM Bairro b WHERE b.municipio = :municipio AND LOWER(b.nome) = LOWER(:nome)")
+    Optional<Bairro> findByMunicipioAndNome(@Param("municipio") Municipio municipio,
+                                            @Param("nome") String nome);
 }

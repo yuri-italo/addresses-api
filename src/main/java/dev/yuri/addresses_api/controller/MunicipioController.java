@@ -105,20 +105,20 @@ public class MunicipioController {
         ),
         responses = {
             @ApiResponse(responseCode = "200",
-                    description = "Entidade de Município salva com sucesso.",
-                    content = @Content(mediaType = "application/json")),
+                description = "Entidade de Município salva com sucesso.",
+                content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "400",
-                    description = "Corpo da requisição inválido.",
-                    content = @Content(mediaType = "application/json")),
+                description = "Corpo da requisição inválido.",
+                content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404",
-                    description = "Código de Município não encontrado.",
-                    content = @Content(mediaType = "application/json")),
+                description = "Código de UF não encontrado.",
+                content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "409",
-                    description = "Dados conflitantes ou recurso já existente.",
-                    content = @Content(mediaType = "application/json")),
+                description = "Dados conflitantes ou recurso já existente.",
+                content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500",
-                    description = "Erro interno no servidor.",
-                    content = @Content(mediaType = "application/json"))
+                description = "Erro interno no servidor.",
+                content = @Content(mediaType = "application/json"))
         }
     )
     public ResponseEntity<List<MunicipioResponse>> save(@Valid @RequestBody MunicipioDto municipioDto) {
@@ -145,21 +145,21 @@ public class MunicipioController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MunicipioUpdateDto.class))
         ),
         responses = {
-                @ApiResponse(responseCode = "200",
-                        description = "Entidade de Município atualizada com sucesso.",
-                        content = @Content(mediaType = "application/json")),
-                @ApiResponse(responseCode = "400",
-                        description = "Corpo da requisição inválido.",
-                        content = @Content(mediaType = "application/json")),
-                @ApiResponse(responseCode = "404",
-                        description = "Entidade de UF ou Município não encontrada.",
-                        content = @Content(mediaType = "application/json")),
-                @ApiResponse(responseCode = "409",
-                        description = "Dados conflitantes ou recurso já existente.",
-                        content = @Content(mediaType = "application/json")),
-                @ApiResponse(responseCode = "500",
-                        description = "Erro interno no servidor.",
-                        content = @Content(mediaType = "application/json"))
+            @ApiResponse(responseCode = "200",
+                description = "Entidade de Município atualizada com sucesso.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400",
+                description = "Corpo da requisição inválido.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404",
+                description = "Entidade Município ou UF não encontrada.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "409",
+                description = "Dados conflitantes ou recurso já existente.",
+                content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500",
+                description = "Erro interno no servidor.",
+                content = @Content(mediaType = "application/json"))
         }
     )
     public ResponseEntity<List<MunicipioResponse>> update(@Valid @RequestBody MunicipioUpdateDto municipioUpdateDto) {

@@ -80,6 +80,6 @@ public class BairroService {
 
     private boolean hasSameAttributes(Bairro bairro, BairroUpdateDto bairroUpdateDto) {
         return bairro.getMunicipio().getCodigoMunicipio().equals(bairroUpdateDto.codigoMunicipio()) &&
-                bairro.getNome().equals(bairroUpdateDto.nome());
+                bairro.getNome().equalsIgnoreCase(bairroUpdateDto.nome());
     }
 }
