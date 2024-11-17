@@ -2,6 +2,7 @@ package dev.yuri.addresses_api.controller;
 
 import dev.yuri.addresses_api.dto.request.PessoaDto;
 import dev.yuri.addresses_api.dto.request.PessoaUpdateDto;
+import dev.yuri.addresses_api.dto.response.ErrorResponse;
 import dev.yuri.addresses_api.dto.response.PessoaResponse;
 import dev.yuri.addresses_api.entity.Endereco;
 import dev.yuri.addresses_api.entity.Pessoa;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -26,6 +28,9 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/pessoa")
+@Tag(name = "Pessoa",
+    description = "Gerenciamento das entidades de pessoas, incluindo operações de criação, consulta e atualização."
+)
 public class PessoaController {
     private final PessoaService pessoaService;
     private final EnderecoService enderecoService;
@@ -44,26 +49,20 @@ public class PessoaController {
         summary = "Buscar entidades de Pessoa",
         description = "Busca entidades de Pessoa com base em filtros opcionais, como código da pessoa, login e status.",
         parameters = {
-            @Parameter(name = "codigoPessoa",
-                description = "O identificador único da pessoa. Exemplo: 123",
-                schema = @Schema(type = "long", example = "123",  description = "Exemplo de código Pessoa")),
-            @Parameter(name = "login",
-                description = "O login único da pessoa. Exemplo: usuario123",
-                schema = @Schema(type = "string", example = "usuario123", description = "Exemplo de login")),
-            @Parameter(name = "status",
-                description = "O status da pessoa. Exemplo: 1 para ativo, 0 para inativo.",
-                schema = @Schema(type = "integer", example = "1", description = "Exemplo de status"))
+            @Parameter(name = "codigoPessoa", description = "O identificador único da pessoa.", example = "123"),
+            @Parameter(name = "login", description = "O login único da pessoa.", example = "usuario123"),
+            @Parameter(name = "status", description = "O status da pessoa. 1 para ativo, 0 para inativo.", example = "1")
         },
         responses = {
             @ApiResponse(responseCode = "200",
                 description = "Lista de pessoas ou uma única entidade que corresponde aos filtros.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = PessoaResponse.class))),
             @ApiResponse(responseCode = "400",
                 description = "Filtros inválidos ou mal formatados.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500",
                 description = "Erro interno no servidor.",
-                content = @Content(mediaType = "application/json"))
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
         }
     )
     public ResponseEntity<?> findPessoa(
@@ -105,19 +104,19 @@ public class PessoaController {
         responses = {
             @ApiResponse(responseCode = "200",
                 description = "Entidade de Pessoa salva com sucesso.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = PessoaResponse.class))),
             @ApiResponse(responseCode = "400",
                 description = "Corpo da requisição inválido.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404",
                 description = "Código de Pessoa ou Bairro não encontrado.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409",
                 description = "Dados conflitantes ou recurso já existente.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500",
                 description = "Erro interno no servidor.",
-                content = @Content(mediaType = "application/json"))
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
         }
     )
     public ResponseEntity<List<PessoaResponse>> save(@Valid @RequestBody PessoaDto pessoaDto) {
@@ -146,19 +145,19 @@ public class PessoaController {
         responses = {
             @ApiResponse(responseCode = "200",
                 description = "Entidade de Pessoa atualizada com sucesso.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = PessoaResponse.class))),
             @ApiResponse(responseCode = "400",
                 description = "Corpo da requisição inválido.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404",
                 description = "Entidade de Pessoa, Endereço ou Bairro não encontrada.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409",
                 description = "Dados conflitantes ou recurso já existente.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500",
                 description = "Erro interno no servidor.",
-                content = @Content(mediaType = "application/json"))
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
         }
     )
     public ResponseEntity<List<PessoaResponse>> update(@Valid @RequestBody PessoaUpdateDto pessoaUpdateDto) {

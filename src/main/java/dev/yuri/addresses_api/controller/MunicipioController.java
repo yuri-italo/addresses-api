@@ -2,6 +2,7 @@ package dev.yuri.addresses_api.controller;
 
 import dev.yuri.addresses_api.dto.request.MunicipioDto;
 import dev.yuri.addresses_api.dto.request.MunicipioUpdateDto;
+import dev.yuri.addresses_api.dto.response.ErrorResponse;
 import dev.yuri.addresses_api.dto.response.MunicipioResponse;
 import dev.yuri.addresses_api.entity.Municipio;
 import dev.yuri.addresses_api.exception.EntityNotSavedException;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -25,6 +27,8 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/municipio")
+@Tag(name = "Município",
+    description = "Gerenciamento das entidades de municípios, incluindo operações de criação, consulta e atualização.")
 public class MunicipioController {
     private final MunicipioService municipioService;
     private final UFService uFService;
@@ -43,29 +47,21 @@ public class MunicipioController {
         summary = "Buscar entidades de Município",
         description = "Busca entidades de Município com base em filtros opcionais, como código do município, código UF, nome e status.",
         parameters = {
-            @Parameter(name = "codigoMunicipio",
-                    description = "O identificador único do município. Exemplo: 123",
-                    schema = @Schema(type = "long", example = "50", description = "Exemplo de código Município")),
-            @Parameter(name = "codigoUF",
-                    description = "O identificador único da UF associada. Exemplo: 123",
-                    schema = @Schema(type = "long", example = "25", description = "Exemplo de código UF")),
-            @Parameter(name = "nome",
-                    description = "O nome do município. Exemplo: Campinas",
-                    schema = @Schema(type = "string", example = "Campinas", description = "Exemplo de nome")),
-            @Parameter(name = "status",
-                    description = "O status do município. Exemplo: 1 para ativo, 2 para inativo.",
-                    schema = @Schema(type = "integer", example = "1", description = "Exemplo de status"))
+            @Parameter(name = "codigoMunicipio", description = "O identificador único do município.", example = "50"),
+            @Parameter(name = "codigoUF", description = "O identificador único da UF associada.", example = "25"),
+            @Parameter(name = "nome", description = "O nome do município.", example = "Campinas"),
+            @Parameter(name = "status", description = "O status do município. 1 para ativo, 2 para inativo.", example = "1")
         },
         responses = {
             @ApiResponse(responseCode = "200",
-                    description = "Lista de municípios ou uma única entidade que corresponde aos filtros.",
-                    content = @Content(mediaType = "application/json")),
+                description = "Lista de municípios ou uma única entidade que corresponde aos filtros.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = MunicipioResponse.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Filtros inválidos ou mal formatados.",
-                    content = @Content(mediaType = "application/json")),
+                description = "Filtros inválidos ou mal formatados.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500",
-                    description = "Erro interno no servidor.",
-                    content = @Content(mediaType = "application/json"))
+                description = "Erro interno no servidor.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
         }
     )
     public ResponseEntity<?> findMunicipio(
@@ -106,19 +102,19 @@ public class MunicipioController {
         responses = {
             @ApiResponse(responseCode = "200",
                 description = "Entidade de Município salva com sucesso.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = MunicipioResponse.class))),
             @ApiResponse(responseCode = "400",
                 description = "Corpo da requisição inválido.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404",
                 description = "Código de UF não encontrado.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409",
                 description = "Dados conflitantes ou recurso já existente.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500",
                 description = "Erro interno no servidor.",
-                content = @Content(mediaType = "application/json"))
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
         }
     )
     public ResponseEntity<List<MunicipioResponse>> save(@Valid @RequestBody MunicipioDto municipioDto) {
@@ -147,19 +143,19 @@ public class MunicipioController {
         responses = {
             @ApiResponse(responseCode = "200",
                 description = "Entidade de Município atualizada com sucesso.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = MunicipioResponse.class))),
             @ApiResponse(responseCode = "400",
                 description = "Corpo da requisição inválido.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404",
                 description = "Entidade Município ou UF não encontrada.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409",
                 description = "Dados conflitantes ou recurso já existente.",
-                content = @Content(mediaType = "application/json")),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500",
                 description = "Erro interno no servidor.",
-                content = @Content(mediaType = "application/json"))
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
         }
     )
     public ResponseEntity<List<MunicipioResponse>> update(@Valid @RequestBody MunicipioUpdateDto municipioUpdateDto) {
