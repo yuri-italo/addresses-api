@@ -1,5 +1,7 @@
 package dev.yuri.addresses_api.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import dev.yuri.addresses_api.mapper.ErrorMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -41,19 +43,45 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<?> handleInvalidFormatException(InvalidFormatException ex, HttpServletRequest request) {
+        String fieldName = ex.getPath().stream()
+                .map(JsonMappingException.Reference::getFieldName)
+                .reduce((first, second) -> second)
+                .orElse("desconhecido");
+        String targetType = ex.getTargetType().getSimpleName();
+        String invalidValue = ex.getValue().toString();
+        String message = String.format("O campo '%s' deve ser do tipo '%s'. Valor fornecido: '%s'.",
+                fieldName, targetType, invalidValue);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorMapper.toResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        message,
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleRequestNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        return ResponseEntity.status(400)
-            .body(ErrorMapper.toResponse(HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "Erro na leitura dos dados da requisição. Verifique o formato e os valores informados.",
-                request.getRequestURI()));
+    public ResponseEntity<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        if (ex.getCause() instanceof InvalidFormatException) {
+            return handleInvalidFormatException((InvalidFormatException) ex.getCause(), request);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorMapper.toResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        "Erro na leitura dos dados da requisição.",
+                        request.getRequestURI()
+                ));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<?> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         String parameterName = ex.getName();
-        String parameterType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+        String parameterType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido";
         String message = String.format("O parâmetro '%s' deve ser do tipo '%s'. Valor fornecido: '%s'.",
                 parameterName, parameterType, ex.getValue());
 
