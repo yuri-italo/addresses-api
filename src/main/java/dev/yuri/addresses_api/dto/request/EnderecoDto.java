@@ -1,9 +1,6 @@
 package dev.yuri.addresses_api.dto.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record EnderecoDto(
     @NotNull(message = "{error.mandatory.codigo.bairro}")
@@ -15,13 +12,14 @@ public record EnderecoDto(
     String nomeRua,
 
     @NotBlank(message = "{error.mandatory.numero}")
-    @Size(min = 1, max = 10, message = "{error.invalid.numero.length}")
+    @Size(max = 10, message = "{error.invalid.numero.length}")
+    @Pattern(regexp = "\\d+[A-Z]?", message = "{error.invalid.numero.format}")
     String numero,
 
     @Size(min = 1, max = 20, message = "{error.invalid.complemento.length}")
     String complemento,
 
     @NotBlank(message = "{error.mandatory.cep}")
-    @Size(min = 9, max = 10, message = "{error.invalid.cep.length}")
+    @Pattern(regexp = "\\d{5}-\\d{3}", message = "{error.invalid.cep.format}")
     String cep) {
 }

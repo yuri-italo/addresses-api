@@ -28,7 +28,8 @@ public record PessoaUpdateDto(
     String login,
 
     @NotBlank(message = "{error.mandatory.senha}")
-    @Size(min = 8, max = 50, message = "{error.invalid.senha.length}")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=])[A-Za-z\\d@#$%^&+=]{8,50}$",
+            message = "{error.invalid.senha.format}")
     String senha,
 
     @NotNull(message = "{error.mandatory.status}")
@@ -38,5 +39,6 @@ public record PessoaUpdateDto(
 
     @Valid
     @NotNull(message = "{error.mandatory.enderecos}")
+    @NotEmpty(message = "{error.at.least.one.address.required}")
     List<EnderecoUpdateDto> enderecos) {
 }

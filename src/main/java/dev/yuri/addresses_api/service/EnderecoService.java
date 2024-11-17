@@ -69,14 +69,12 @@ public class EnderecoService {
     }
 
     public List<Endereco> toEntityList(PessoaDto pessoaDto, Pessoa pessoa) {
-        return pessoaDto.enderecos().stream().map(enderecoDto -> {
-            Bairro bairro = bairroService.getByCodigoBairro(enderecoDto.codigoBairro());
-            return new Endereco(pessoa, bairro, enderecoDto);
+        return pessoaDto.enderecos()
+            .stream()
+            .map(enderecoDto -> {
+                Bairro bairro = bairroService.getByCodigoBairro(enderecoDto.codigoBairro());
+                return new Endereco(pessoa, bairro, enderecoDto);
         }).toList();
-    }
-
-    public void delete(Endereco endereco) {
-        enderecoRepository.delete(endereco);
     }
 
     public List<Endereco> toEntityList(List<EnderecoUpdateDto> enderecoUpdateDtos) {
@@ -92,6 +90,10 @@ public class EnderecoService {
 
             return new Endereco(enderecoUpdateDto, pessoa, bairro);
         }).collect(Collectors.toList());
+    }
+
+    public void delete(Endereco endereco) {
+        enderecoRepository.delete(endereco);
     }
 
     public void assertUpdatable(List<Endereco> enderecos, Pessoa expectedOwner) {

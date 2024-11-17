@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidFilterException.class)
-    public ResponseEntity<?> handleInvalidFiler(InvalidFilterException ex, HttpServletRequest request) {
+    public ResponseEntity<?> handleInvalidFilter(InvalidFilterException ex, HttpServletRequest request) {
         return ResponseEntity.status(400)
             .body(ErrorMapper.toResponse(HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AddressDoesNotBelongToPersonException.class)
-    public ResponseEntity<?> AddressDoesNotBelongToPersonFiler(AddressDoesNotBelongToPersonException ex, HttpServletRequest request) {
+    public ResponseEntity<?> handleAddressDoesNotBelongToPerson(AddressDoesNotBelongToPersonException ex, HttpServletRequest request) {
         return ResponseEntity.status(400)
             .body(ErrorMapper.toResponse(HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
