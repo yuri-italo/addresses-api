@@ -1,6 +1,7 @@
 package dev.yuri.addresses_api.entity;
 
 import dev.yuri.addresses_api.dto.request.BairroDto;
+import dev.yuri.addresses_api.dto.request.BairroUpdateDto;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +44,12 @@ public class Bairro {
         this.municipio = Objects.requireNonNull(municipio);
         this.nome = bairroDto.nome();
         this.status = bairroDto.status();
+    }
+
+    public Bairro(@Valid BairroUpdateDto bairroUpdateDto, Municipio municipio) {
+        this.municipio = Objects.requireNonNull(municipio);
+        this.nome = bairroUpdateDto.nome();
+        this.status = bairroUpdateDto.status();
     }
 }
 

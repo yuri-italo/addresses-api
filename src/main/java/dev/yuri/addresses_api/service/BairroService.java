@@ -51,11 +51,14 @@ public class BairroService {
         return bairroRepository.findAll();
     }
 
-    public void assertUniqueness(Municipio municipio, String nome) {
+    public void assertUniqueness(Bairro bairro) {
+        var municipio = bairro.getMunicipio();
+        var nome = bairro.getNome();
+
         this.findByMunicipioAndNome(municipio, nome)
-            .ifPresent(bairro -> {
-                throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
-                  new Object[]{"bairro", "nome", nome}, BairroController.LOCALE_PT_BR));
+            .ifPresent(b -> {
+                throw new EntityAlreadyExistsException(messageSource.getMessage("error.bairro.already.exists",
+                  new Object[]{nome, municipio.getCodigoMunicipio()}, BairroController.LOCALE_PT_BR));
             });
     }
 
@@ -75,7 +78,9 @@ public class BairroService {
         }
 
         var municipio = municipioService.getByCodigoMunicipio(bairroUpdateDto.codigoMunicipio());
-        this.assertUniqueness(municipio, bairroUpdateDto.nome());
+        var bairroUpdate = new Bairro(bairroUpdateDto, municipio);
+
+        this.assertUniqueness(bairroUpdate);
     }
 
     private boolean hasSameAttributes(Bairro bairro, BairroUpdateDto bairroUpdateDto) {

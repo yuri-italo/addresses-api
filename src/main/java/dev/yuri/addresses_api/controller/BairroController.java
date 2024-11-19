@@ -121,7 +121,7 @@ public class BairroController {
     public ResponseEntity<List<BairroResponse>> save(@Valid @RequestBody BairroDto bairroDto) {
         var municipio = municipioService.getByCodigoMunicipio(bairroDto.codigoMunicipio());
         var bairro = new Bairro(bairroDto, municipio);
-        bairroService.assertUniqueness(bairro.getMunicipio(), bairro.getNome());
+        bairroService.assertUniqueness(bairro);
 
         try {
             bairroService.save(bairro);
