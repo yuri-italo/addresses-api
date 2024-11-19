@@ -77,16 +77,16 @@ public class UFService {
     private void assertUniquenessBySigla(String sigla) {
         this.findBySigla(sigla)
                 .ifPresent(uf -> {
-                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"UF", "sigla", sigla}, LOCALE_PT_BR));
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.uf.already.exists",
+                            new Object[]{"sigla", sigla}, LOCALE_PT_BR));
                 });
     }
 
     private void assertUniquenessByNome(String nome) {
         this.findByNome(nome)
                 .ifPresent(uf -> {
-                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"UF", "nome", nome}, LOCALE_PT_BR));
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.uf.already.exists",
+                            new Object[]{"nome", nome}, LOCALE_PT_BR));
                 });
     }
 }

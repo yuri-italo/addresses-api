@@ -58,8 +58,8 @@ public class MunicipioService {
     public void assertUniqueness(UF uf, String nome) {
         this.findByUfAndNome(uf, nome)
                 .ifPresent(municipio -> {
-                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
-                        new Object[]{"município", "nome", nome}, MunicipioController.LOCALE_PT_BR));
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.municipio.already.exists",
+                        new Object[]{nome, uf.getCodigoUF()}, MunicipioController.LOCALE_PT_BR));
                 });
     }
 
