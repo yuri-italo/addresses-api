@@ -65,8 +65,8 @@ public class PessoaService {
     public void assertUniqueness(String login) {
         this.findByLogin(login)
                 .ifPresent(pessoa -> {
-                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.entity.already.exists",
-                            new Object[]{"pessoa", "login", login}, PessoaController.LOCALE_PT_BR));
+                    throw new EntityAlreadyExistsException(messageSource.getMessage("error.pessoa.already.exists",
+                            new Object[]{login}, PessoaController.LOCALE_PT_BR));
                 });
     }
 
