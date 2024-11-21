@@ -15,18 +15,18 @@ public interface MunicipioRepository extends JpaRepository<Municipio, Long> {
             "AND (:codigoUF IS NULL OR m.uf.codigoUF = :codigoUF) " +
             "AND (:nome IS NULL OR LOWER(m.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR m.status = :status)")
-    Optional<Municipio> findElementByCodigoMunicipioOrNomeOrStatus(@Param("codigoMunicipio") Long codigoMunicipio,
-                                                                   @Param("codigoUF") Long codigoUF,
-                                                                   @Param("nome") String nome,
-                                                                   @Param("status") Integer status);
+    Optional<Municipio> findElementByCodigoMunicipioAndNomeAndStatus(@Param("codigoMunicipio") Long codigoMunicipio,
+                                                                     @Param("codigoUF") Long codigoUF,
+                                                                     @Param("nome") String nome,
+                                                                     @Param("status") Integer status);
 
     @Query("SELECT m FROM Municipio m " +
             "WHERE (:uF IS NULL OR m.uf = :uF) " +
             "AND (:nome IS NULL OR LOWER(m.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR m.status = :status)")
-    List<Municipio> getElementsByUFOrNomeOrStatus(@Param("uF") UF uF,
-                                                  @Param("nome") String nome,
-                                                  @Param("status") Integer status);
+    List<Municipio> getElementsByUFAndNomeAndStatus(@Param("uF") UF uF,
+                                                    @Param("nome") String nome,
+                                                    @Param("status") Integer status);
 
     @Query("SELECT m FROM Municipio m WHERE m.uf = :uf AND LOWER(m.nome) = LOWER(:nome)")
     Optional<Municipio> findByUfAndNome(@Param("uf") UF uf,

@@ -13,15 +13,15 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
             "WHERE (:codigoPessoa IS NULL OR p.codigoPessoa = :codigoPessoa) " +
             "AND (:login IS NULL OR LOWER(p.login) LIKE LOWER(CONCAT('%', :login, '%'))) " +
             "AND (:status IS NULL OR p.status = :status)")
-    Optional<Pessoa> findElementByCodigoPessoaOrLoginOrStatus(@Param("codigoPessoa") Long codigoPessoa,
-                                                              @Param("login") String login,
-                                                              @Param("status") Integer status);
+    Optional<Pessoa> findElementByCodigoPessoaAndLoginAndStatus(@Param("codigoPessoa") Long codigoPessoa,
+                                                                @Param("login") String login,
+                                                                @Param("status") Integer status);
 
     @Query("SELECT p FROM Pessoa p " +
             "WHERE (:login IS NULL OR LOWER(p.login) LIKE LOWER(CONCAT('%', :login, '%'))) " +
             "AND (:status IS NULL OR p.status = :status)")
-    List<Pessoa> getElementsByLoginOrStatus(@Param("login") String login,
-                                            @Param("status") Integer status);
+    List<Pessoa> getElementsByLoginAndStatus(@Param("login") String login,
+                                             @Param("status") Integer status);
 
     Optional<Pessoa> findByLogin(String login);
 }

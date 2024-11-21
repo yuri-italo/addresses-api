@@ -10,6 +10,7 @@ import dev.yuri.addresses_api.repository.BairroRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,21 +31,25 @@ public class BairroService {
     }
 
     public Optional<Bairro> findElementByFilters(Long codigoBairro, Long codigoMunicipio, String nome, Integer status) {
-        return bairroRepository.findElementByCodigoBairroOrCodigoMunicipioOrNomeOrStatus(
+        return bairroRepository.findElementByCodigoBairroAndCodigoMunicipioAndNomeAndStatus(
                 codigoBairro, codigoMunicipio, nome, status);
     }
 
     public List<Bairro> getElementsByAppliedFilters(Long codigoMunicipio, String nome, Integer status) {
         Municipio municipio = null;
         if (codigoMunicipio != null) {
-            municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
+            try {
+                municipio = municipioService.getByCodigoMunicipio(codigoMunicipio);
+            } catch (EntityNotFoundException e) {
+                return Collections.emptyList();
+            }
         }
 
-        return this.getElementsByMunicipioOrNomeOrStatus(municipio, nome, status);
+        return this.getElementsByMunicipioAndNomeAndStatus(municipio, nome, status);
     }
 
-    public List<Bairro> getElementsByMunicipioOrNomeOrStatus(Municipio municipio, String nome, Integer status) {
-        return bairroRepository.getElementsByMunicipioOrNomeOrStatus(municipio, nome, status);
+    public List<Bairro> getElementsByMunicipioAndNomeAndStatus(Municipio municipio, String nome, Integer status) {
+        return bairroRepository.getElementsByMunicipioAndNomeAndStatus(municipio, nome, status);
     }
 
     public List<Bairro> findAll() {

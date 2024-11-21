@@ -47,11 +47,11 @@ public class PessoaService {
     }
 
     public Optional<Pessoa> findElementByFilters(Long codigoPessoa, String login, Integer status) {
-        return pessoaRepository.findElementByCodigoPessoaOrLoginOrStatus(codigoPessoa, login, status);
+        return pessoaRepository.findElementByCodigoPessoaAndLoginAndStatus(codigoPessoa, login, status);
     }
 
     public List<Pessoa> getElementsByAppliedFilters(String login, Integer status) {
-        return pessoaRepository.getElementsByLoginOrStatus(login, status);
+        return pessoaRepository.getElementsByLoginAndStatus(login, status);
     }
 
     public List<Pessoa> findAll() {

@@ -10,6 +10,7 @@ import dev.yuri.addresses_api.repository.MunicipioRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +27,7 @@ public class MunicipioService {
     }
 
     public Optional<Municipio> findElementByFilters(Long codigoMunicipio, Long codigoUF, String nome, Integer status) {
-        return municipioRepository.findElementByCodigoMunicipioOrNomeOrStatus(
+        return municipioRepository.findElementByCodigoMunicipioAndNomeAndStatus(
                 codigoMunicipio,codigoUF, nome, status);
     }
 
@@ -34,17 +35,21 @@ public class MunicipioService {
         return municipioRepository.findByUfAndNome(uF, nome);
     }
 
-    public List<Municipio> getElementsByUFOrNomeOrStatus(UF uF, String nome, Integer status) {
-        return municipioRepository.getElementsByUFOrNomeOrStatus(uF, nome, status);
+    public List<Municipio> getElementsByUFAndNomeAndStatus(UF uF, String nome, Integer status) {
+        return municipioRepository.getElementsByUFAndNomeAndStatus(uF, nome, status);
     }
 
     public List<Municipio> getElementsByAppliedFilters(Long codigoUF, String nome, Integer status) {
         UF uF = null;
         if (codigoUF != null) {
-            uF = uFService.getByCodigoUF(codigoUF);
+            try {
+                uF = uFService.getByCodigoUF(codigoUF);
+            } catch (EntityNotFoundException e) {
+                return Collections.emptyList();
+            }
         }
 
-        return this.getElementsByUFOrNomeOrStatus(uF, nome, status);
+        return this.getElementsByUFAndNomeAndStatus(uF, nome, status);
     }
 
     public List<Municipio> findAll() {

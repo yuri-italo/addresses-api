@@ -15,18 +15,18 @@ public interface BairroRepository extends JpaRepository<Bairro, Long> {
             "AND (:codigoMunicipio IS NULL OR b.municipio.codigoMunicipio = :codigoMunicipio) " +
             "AND (:nome IS NULL OR LOWER(b.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR b.status = :status)")
-    Optional<Bairro> findElementByCodigoBairroOrCodigoMunicipioOrNomeOrStatus(@Param("codigoBairro") Long codigoBairro,
-                                                                              @Param("codigoMunicipio") Long codigoMunicipio,
-                                                                              @Param("nome") String nome,
-                                                                              @Param("status") Integer status);
+    Optional<Bairro> findElementByCodigoBairroAndCodigoMunicipioAndNomeAndStatus(@Param("codigoBairro") Long codigoBairro,
+                                                                                 @Param("codigoMunicipio") Long codigoMunicipio,
+                                                                                 @Param("nome") String nome,
+                                                                                 @Param("status") Integer status);
 
     @Query("SELECT b FROM Bairro b " +
             "WHERE (:municipio IS NULL OR b.municipio = :municipio) " +
             "AND (:nome IS NULL OR LOWER(b.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +
             "AND (:status IS NULL OR b.status = :status)")
-    List<Bairro> getElementsByMunicipioOrNomeOrStatus(@Param("municipio") Municipio municipio,
-                                                      @Param("nome") String nome,
-                                                      @Param("status") Integer status);
+    List<Bairro> getElementsByMunicipioAndNomeAndStatus(@Param("municipio") Municipio municipio,
+                                                        @Param("nome") String nome,
+                                                        @Param("status") Integer status);
 
     @Query("SELECT b FROM Bairro b WHERE b.municipio = :municipio AND LOWER(b.nome) = LOWER(:nome)")
     Optional<Bairro> findByMunicipioAndNome(@Param("municipio") Municipio municipio,

@@ -37,7 +37,7 @@ public class UFService {
     }
 
     public Optional<UF> findElementByFilters(Long codigoUF, String sigla, String nome, Integer status) {
-        return uFRepository.findElementByCodigoUFOrSiglaOrNomeOrStatus(codigoUF, sigla, nome, status);
+        return uFRepository.findElementByCodigoUFAndSiglaAndNomeAndStatus(codigoUF, sigla, nome, status);
     }
 
     public List<UF> getElementsByStatus(Integer status) {
